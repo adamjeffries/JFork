@@ -10,26 +10,80 @@ jfork is a JavaScript Framework which perfectly performance and usability. While
 
 ## Tutorial and Examples ##
 
+---
 
 ### Type Checking ###
 
+```javascript
+//Check the type Explicitly
+if(jfork.is.Number(123)){  
+	console.log("Yay!  123 is a Number");  
+}
 
-Checking the type explicitly  
+//Get the type
+console.log("123 is of type " + jfork.is(123));
+```
+
+Output:
 
 ```javascript
-    if(jfork.is.Number(123)){  
-      alert("123 is a Number");  
-    }
+Yay!  123 is a Number
+123 is of type Number
 ```
 
-Returning the type  
+---
 
-```js
-if(jfork.is(123) == "Number"){
-	alert("123 is a Number");
-}
-```
+### Object Oriented Syntax ###
 	
+Basic Class Example:
+
+```javascript
+//Define the Class
+var Animal = jfork.Class({
+	"static isAlive":true,
+	"private numEyes":2,
+	construct:function(numEyes){
+		this.numEyes = numEyes;
+	},
+	"static setIsAlive":function(isAlive){
+		this.isAlive = isAlive;
+	},
+	"public setNumEyes":function(eyes){
+		this.numEyes = eyes;	
+	},
+	"public getNumEyes":function(){
+		return this.numEyes;	
+	}
+});
+
+//Instantiate Class
+var dog = new Animal(2);
+var spider = new Animal(6);
+
+console.log(dog.numEyes);
+console.log(dog.isAlive);
+Animal.isAlive = false;
+console.log(dog.isAlive);
+spider.isAlive = true;
+console.log(dog.isAlive);
+spider.setNumEyes(8);
+
+```
+
+Output:
+
+```javascript
+null
+true
+false
+true
+```
+
+
+
+Extend Class Example:
+
+
 	
 
 

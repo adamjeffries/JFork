@@ -396,6 +396,10 @@
 				if(args[e] && this.events[e]){ this.events[e] = args[e]; }
 			}
 			if(args.isOpen){ this.isOpen = true; }
+			if(args.appendTo){
+				this.elem.parentNode.removeChild(this.elem);
+				document.getElementById(args.appendTo).appendChild(this.elem);
+			}
 		},
 		initialize:function(){
 			this.events.init.apply(this,arguments);
@@ -476,8 +480,12 @@
 		initialize:function(){
 			this.isPageLoaded = true;
 			for(var s in this.storage){
-				this.storage[s].instance = this.create(s,this.storage[s].args);
-				this.storage[s].instance.initialize();
+				if(document.getElementById(s)){
+					this.storage[s].instance = this.create(s,this.storage[s].args);
+					this.storage[s].instance.initialize();
+				} else {
+					delete this.storage[s];
+				}				
 			}
 		},
 		
