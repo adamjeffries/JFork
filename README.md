@@ -15,13 +15,13 @@ jfork is a JavaScript Framework which perfectly performance and usability. While
 
 
 1. Checking the type explicitly  
-```javascript
-	if(jfork.is.Number(123)){
-		alert("123 is a Number");
+```js
+	if(jfork.is.Number(123)){  
+		alert("123 is a Number");  
 	}
 ```
 2. Returning the type  
-```javascript
+```js
 	if(jfork.is(123) == "Number"){
 		alert("123 is a Number");
 	}
