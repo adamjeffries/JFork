@@ -398,7 +398,7 @@
 			if(args.isOpen){ this.isOpen = true; }
 			if(args.appendTo){
 				this.elem.parentNode.removeChild(this.elem);
-				document.getElementById(args.appendTo).appendChild(this.elem);
+				args.appendTo.appendChild(this.elem);
 			}
 		},
 		initialize:function(){
@@ -595,7 +595,7 @@
 			}
 		},
 		
-		"private static getRequest":function(){
+		"public static getRequest":function(){
 			var XMLhttp = false; 		
 			if(window.XMLHttpRequest && !(window.ActiveXObject)) {
 				try {
@@ -639,12 +639,15 @@
 	jfork.API = jfork.Class({
 		
 		"private apiCalls":{},
+		"private onComplete":function(){},
 		
-		construct:function(apiCalls){
+		construct:function(apiCalls,onComplete){
 			this.apiCalls = apiCalls;
+			this.onComplete = onComplete || function(){ return true; };
 		},
 		
 		send:function(name,args){ //args:{type:"GET",params:{},data:{},onSuccess:{},onFail:{},onComplete:{}}
+			var that = this;
 			args = args || {};
 			var path = this.getPath(name, args.params);
 			if(!path){ return; }
@@ -659,18 +662,16 @@
 			jfork.AJAX.send({url:path,method:args.method,data:args.data,onComplete:function(responseText){
 				var json = parseJSON(responseText);
 				if(json){
-					if(json.success){
+					var pass = that.onComplete(json,args);
+					if(pass){
 						args.onSuccess(json,args);
 					} else {
-						if(json.validationErrors && json.validationErrors.length > 0){
-							json.message = json.validationErrors[0];
-						}
 						args.onFail(json,args);
 					}
+					args.onComplete(json,args);
 				} else {
 					args.onFail({message:"Unable to parse JSON."},args);
 				}
-				args.onComplete(json,args);
 			},onFail:function(message){
 				args.onFail({message:message},args);
 			}});
