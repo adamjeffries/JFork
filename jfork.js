@@ -567,9 +567,12 @@
 			XMLhttp.abort();
 			XMLhttp.onreadystatechange=function() {
 				if(XMLhttp.readyState == 4){
+					if(args.onComplete){
+						args.onComplete(XMLhttp.responseText,XMLhttp);	
+					}
 					if(XMLhttp.status == 200){
-						if(args.onComplete){
-							args.onComplete(XMLhttp.responseText,XMLhttp);	
+						if(args.onSuccess){
+							args.onSuccess(XMLhttp.responseText,XMLhttp);	
 						}
 					} else {
 						if(args.onFail){
@@ -643,7 +646,9 @@
 		
 		construct:function(apiCalls,onComplete){
 			this.apiCalls = apiCalls;
-			this.onComplete = onComplete || function(){ return true; };
+			this.onComplete = onComplete || function(json,XMLhttp){ 
+				return (XMLhttp.status == 200) ? true : false; 
+			};
 		},
 		
 		send:function(name,args){ //args:{type:"GET",params:{},data:{},onSuccess:{},onFail:{},onComplete:{}}
@@ -659,10 +664,10 @@
 			args.onComplete = args.onComplete || function(){};
 			
 	
-			jfork.AJAX.send({url:path,method:args.method,data:args.data,onComplete:function(responseText){
+			jfork.AJAX.send({url:path,method:args.method,data:args.data,onComplete:function(responseText,XMLHttp){
 				var json = parseJSON(responseText);
 				if(json){
-					var pass = that.onComplete(json,args);
+					var pass = that.onComplete(json,XMLHttp,args);
 					if(pass){
 						args.onSuccess(json,args);
 					} else {
@@ -670,10 +675,8 @@
 					}
 					args.onComplete(json,args);
 				} else {
-					args.onFail({message:"Unable to parse JSON."},args);
+					args.onFail({message:"Unable to parse JSON."},XMLHttp,args);
 				}
-			},onFail:function(message){
-				args.onFail({message:message},args);
 			}});
 		},
 		
