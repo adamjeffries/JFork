@@ -28,7 +28,9 @@ jfork.extend = function(obj1,obj2){
 };
 
 jfork.each = function(o,func){
-	if(o.constructor == Array){
+	if(!o){
+		return;
+	} else if(o.constructor == Array){
 		for(var i=0, len=o.length; i<len; i++){
 			if(func(i,o[i],o) === false){
 				break;
@@ -107,26 +109,38 @@ jfork.width = function(elem){
 //-----------------------------------------------------------------------------
 jfork.dao = function(args){
 	
-	//TODO: Add the ability to cache if necessary
-	var reservedNames = {data:true,put:true,parse:true,get:true,getAll:true};
+	var reservedNames = {data:true,parse:true,put:true,get:true,getAll:true};
 	
+	args = jfork.extend({
+		data:{},
+		parse:function(o){ return o; },
+		put:function(){ return true; },
+		get:function(){ return null; },
+		getAll:function(){ return []; }
+	},args);
 	
 	var dao = function(instance){
 		instance = instance || {};
 		
+		//Initialize data
 		for(var a in args.data){
 			if(instance[a]===undefined){
 				instance[a] = args.data[a];
 			}
 		}
 		
-		for(var a in args){
-			if(args[a] instanceof Function && !reservedNames[a]){
-				instance[a] = function(){ return args[a].apply(instance,Array.prototype.slice.call(arguments)); };				
-			}
-		}
+		//Parse data
+		instance = args.parse.call(instance,instance);
 		
+		jfork.each(args,function(i,v){
+			if(v instanceof Function && !reservedNames[i]){
+				instance[i] = jfork.bind(v,instance);	
+			}
+		});
+		
+		//Add update
 		instance.updateData = function(newData){
+			newData = args.parse.call(instance,newData);
 			for(var d in args.data){
 				if(newData[d] !== null || newData[d] !== undefined){
 					instance[d] = newData[d];
@@ -134,13 +148,12 @@ jfork.dao = function(args){
 			}
 		}
 		
+		//Add put
 		instance.put = function(){
-			if(args.put){
-				return args.put.apply(instance,Array.prototype.slice.call(arguments));
-			}
-			return true;
+			return args.put.apply(instance,Array.prototype.slice.call(arguments));
 		};
 		
+		//Add toString
 		instance.toString = function(){
 			var data = {};
 			for(var a in args.data){
@@ -152,27 +165,9 @@ jfork.dao = function(args){
 		return instance;
 	};
 	
-	dao.parse = function(json){
-		if(args.parse){
-			return dao(args.parse.apply(dao,Array.prototype.slice.call(arguments)));
-		} else {
-			return dao(json);
-		}
-	};
+	dao.get = jfork.bind(args.get,dao);
 	
-	dao.get = function(){
-		if(args.get){
-			return args.get.apply(dao,Array.prototype.slice.call(arguments));
-		}
-		return null;
-	};
-	
-	dao.getAll = function(){
-		if(args.getAll){
-			return args.getAll.apply(dao,Array.prototype.slice.call(arguments));
-		}
-		return [];
-	};
+	dao.getAll = jfork.bind(args.getAll,dao);
 	
 	return dao;	
 };
@@ -477,7 +472,7 @@ jfork.image = function(img){ //Must be a loaded image object
 	
 	return {
 		resize:function(args){
-			var args = jfork.extend({
+			args = jfork.extend({
 				maxWidth:0,
 				maxHeight:0,
 				type:"image/png",
@@ -520,8 +515,39 @@ jfork.image = function(img){ //Must be a loaded image object
 			
 			return dataurl;
 		},
-		crop:function(){
+		crop:function(args){
+			args = jfork.extend({
+				sX:0,
+				sY:0,
+				dX:0,
+				dY:0,
+				type:"image/png",
+				onLoad:null
+			},args);
 			
+			var canvas = document.createElement('canvas');
+			var ctx = canvas.getContext("2d");
+
+			var width = args.dX-args.sX;
+			var height = args.dY-args.sY;
+
+			canvas.width = width;
+			canvas.height = height;
+			ctx.drawImage(img,args.sX,args.sY,width,height,0,0,width,height);
+			
+			var dataurl = canvas.toDataURL(args.type,0.95);			
+			document.body.appendChild(canvas);
+			document.body.removeChild(canvas);
+			
+			if(args.onLoad){
+				var newImage = new Image();
+				newImage.onload = function(){
+					args.onLoad(newImage);
+				};
+				newImage.src = dataurl;
+			}			
+			
+			return dataurl;
 		}
 	};
 };
@@ -607,7 +633,7 @@ jfork.group = (function(){
 						}
 						if(args.cover){
 							args.cover = document.createElement("div");
-							jfork.css(args.cover,{position:"absolute",display:"none",top:"0px",left:"0px",width:"100%",height:"100%"});
+							jfork.css(args.cover,{position:"fixed",display:"none",top:"0px",left:"0px",width:"100%",height:"100%"});
 							args.cover.className = args.coverClass;
 							args.element.parentNode.insertBefore(args.cover,args.element);
 						}
@@ -631,16 +657,17 @@ jfork.group = (function(){
 						if(args.isFront){
 							args.element.style.zIndex = (++zindex);
 						}
-						if(args.center){
-							center(args.element);
-						}
 						if(args.cover){
 							if(args.isFront){
 								args.cover.style.zIndex = zindex-1;
 							}
 							args.showCover();
 						}
-						return show.apply(args,Array.prototype.slice.call(arguments));
+						var rtn = show.apply(args,Array.prototype.slice.call(arguments));
+						if(args.center){
+							center(args.element);
+						}						
+						return rtn;
 					};
 					break;
 				case "hide":
