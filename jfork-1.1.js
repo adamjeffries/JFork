@@ -215,7 +215,11 @@ jfork.ajax = function(args){
 	
 	if(args.method && args.method == "POST"){
 		XMLhttp.open("POST", args.url, true);
-		XMLhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		if(args.contentType){
+			XMLhttp.setRequestHeader("Content-type", args.contentType);			
+		} else {
+			XMLhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		}
 		XMLhttp.send(dataString);
 	} else {
 		if(args.url.indexOf("?") == -1){ args.url += "?"; }
@@ -257,11 +261,11 @@ jfork.ajax.request = function(){
 //-----------------------------------------------------------------------------
 //									API
 //-----------------------------------------------------------------------------
-jfork.api = function(args){ //{urls:{name:url,..},onComplete:function(responseText,XMLHttp){}}
-
-	args.onComplete = args.onComplete || function(responseText,XMLhttp){ 
+jfork.api = function(args){ //{urls:{name:url,..},onComplete:function(responseText,XMLHttp){},contentType:null}
+	
+	args = jfork.extend({urls:null,contentType:null,onComplete:function(responseText,XMLhttp){ 
 		return (XMLhttp.status == 200) ? true : false; 
-	};
+	}},args);
 	
 	var getPath = function(name, params){
 		if(args.urls[name]){
@@ -289,6 +293,7 @@ jfork.api = function(args){ //{urls:{name:url,..},onComplete:function(responseTe
 					params:"",
 					data:{},
 					method:"GET",
+					contentType:null,
 					onSuccess:function(){},
 					onFail:function(){},
 					onComplete:function(){}
@@ -306,6 +311,7 @@ jfork.api = function(args){ //{urls:{name:url,..},onComplete:function(responseTe
 					url:path,
 					method:args2.method,
 					data:args2.data,
+					contentType:args2.contentType || args.contentType,
 					onComplete:function(responseText,XMLHttp){
 						var json;
 						try {
