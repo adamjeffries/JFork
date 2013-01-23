@@ -507,9 +507,13 @@ jfork.image = function(img){ //Must be a loaded image object
 			canvas.height = height;					
 			ctx.drawImage(img, 0, 0, width, height);
 			
-			var dataurl = canvas.toDataURL(args.type,0.95);			
+			var dataurl = canvas.toDataURL(args.type,0.95);	
+			
+			//Trying to garbage collect
 			document.body.appendChild(canvas);
 			document.body.removeChild(canvas);
+			canvas = null;
+			ctx = null;
 			
 			if(args.onLoad){
 				var newImage = new Image();
@@ -541,9 +545,13 @@ jfork.image = function(img){ //Must be a loaded image object
 			canvas.height = height;
 			ctx.drawImage(img,args.sX,args.sY,width,height,0,0,width,height);
 			
-			var dataurl = canvas.toDataURL(args.type,0.95);			
+			var dataurl = canvas.toDataURL(args.type,0.95);	
+			
+			//Trying to garbage collect
 			document.body.appendChild(canvas);
 			document.body.removeChild(canvas);
+			canvas = null;
+			ctx = null;
 			
 			if(args.onLoad){
 				var newImage = new Image();
