@@ -102,6 +102,18 @@ jfork.width = function(elem){
 	return elem.offsetWidth;	
 };
 
+jfork.windowDimensions = function(){
+	if(!window.innerWidth){
+		if(!(document.documentElement.clientWidth == 0)){
+			return {width:document.documentElement.clientWidth, height:document.documentElement.clientHeight};
+		} else {
+			return {width:document.body.clientWidth, height:document.body.clientHeight};
+		}
+	}
+	return {width:window.innerWidth, height:window.innerHeight};
+};
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -454,7 +466,7 @@ jfork.upload = function(args){
 	};
 	
 	
-	file.addEventListener("change",function(){
+	jfork.addEvent(file,"change",function(){
 		if(file.value == ""){ return; }
 		if(args.onAsyncInitialize){
 			args.onAsyncInitialize(args,function(){
@@ -463,7 +475,7 @@ jfork.upload = function(args){
 		} else {
 			sendFile(0);			
 		}
-	});	
+	});
 	
 	return form;
 };
@@ -578,8 +590,9 @@ jfork.group = (function(){
 	var zindex = 1000; //Need to loop through and find the highest first	
 	
 	var center = function(elem){
-		elem.style.top = Math.floor((window.innerHeight - elem.offsetHeight)/2) + "px";
-		elem.style.left = Math.floor((window.innerWidth - elem.offsetWidth)/2) + "px";
+		var dim = jfork.windowDimensions();
+		elem.style.top = Math.floor((dim.height - elem.offsetHeight)/2) + "px";
+		elem.style.left = Math.floor((dim.width - elem.offsetWidth)/2) + "px";
 	};
 	
 	jfork.addEvent(window,"resize",function(){
@@ -734,6 +747,10 @@ Class - easier to use! - this is the root - jfork = jfork.Class
 - Common use case is static vs dynamic
 - Common case is extending
 - Common case is constructor
+- Common case is type checking
+- Common case is one time use vs reusable...
+- Overloading is NOT necessary
+
 
 - Uncommon - private (no point?)
 - Overloading? - maybe have a generic arguments default dude
@@ -741,13 +758,13 @@ Class - easier to use! - this is the root - jfork = jfork.Class
 New Datatypes - Only useful ones
 Date - pretty time
 API
-Iterator
+Iterator - each - return value - if return; - continue;   if return val; - break;    each(array,func,easing,timing)
 Looper (does easing as well)
 Timer
 Arguments
 
 Panel/Group
--load,open,close,isOpen,toggle,cover,mask,scroll,bottom,parent,center,type(group together),top(top zindex) EXTENDABLE!
+-load,open,close,isOpen,toggle,cover,mask,scroll,bottom,parent,center,type(group together),top(top zindex), listener(for show/hide, etc) EXTENDABLE!
 Dialog
 
 IFrame - Extends Group?
@@ -787,6 +804,10 @@ group1.custom == "hello"
 group1.load(); //first customMethod
 
 
+group.element = function(){ return document.getElementById("asdf"); } //Happends at load time
+group.showAnimation = "";  expand from element, slide up, slide down, box expand
+
+
 var dialog1 = jfork.Dialog({});
 //Similar but autopopulates parent, center, cover, 
 
@@ -799,6 +820,65 @@ Example usings arguments
 var myfunction = function(){
 	var args = jfork.Args({}); //Can it get caller.arguments?
 };
+
+
+
+----------------------------------------------------------
+Example class usages
+
+
+jfork.dao = jfork({
+	data:{}
+	var1:"boom"
+});
+
+
+dh.User = jfork({
+	extend:jfork.dao,
+	var1:"asdf",
+	data:{ //Variables override
+		id:12,
+		name:"Adam"
+	},
+	method1:function(){
+		this.Super
+	},
+	"private method2":function(){
+	
+	},
+	"static method3":function(a,b,c){
+	
+	},
+	"method4(int a, String b, var c)":function(a,b,c){
+	
+	},
+	
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 */
