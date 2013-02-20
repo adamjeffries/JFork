@@ -84,6 +84,8 @@ jfork.css = function(elem,props){
 	}
 };
 
+jfork.isElement = function(o){ return o && ("undefined" !== typeof o.childNodes || o.nodeType) ? true : false; };
+
 
 
 //-----------------------------------------------------------------------------
@@ -636,7 +638,7 @@ jfork.group = (function(){
 						if(typeof args.element == 'string'){
 							args.element = document.getElementById(args.element);
 						}
-						if(args.element instanceof Element || (args.element && args.element.nodeType == 1 && args.element.tagName != undefined)) {
+						if(jfork.isElement(args.element) || (args.element && args.element.nodeType == 1 && args.element.tagName != undefined)) {
 							groups.push(args);
 						} else {
 							return;
@@ -645,7 +647,7 @@ jfork.group = (function(){
 							if(typeof args.parent == 'string'){
 								args.parent = document.getElementById(args.parent);
 							}
-							if(args.parent instanceof Element || (args.parent && args.parent.nodeType == 1 && args.parent.tagName != undefined)) {
+							if(jfork.isElement(args.parent) || (args.parent && args.parent.nodeType == 1 && args.parent.tagName != undefined)) {
 								if(args.element.offsetParent){
 									args.element.offsetParent.removeChild(args.element);
 								}
