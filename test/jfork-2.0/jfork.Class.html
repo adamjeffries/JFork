@@ -60,9 +60,9 @@ test("instance independence", function() {
 
 
 
-module("Variable Types");
+module("Variables");
 
-test("public dynamic variables on instance", function() {
+test("public dynamic on instance", function() {
 	
 	var Animal = jfork.Class({
 		var1:"a",
@@ -107,7 +107,7 @@ test("public dynamic variables on instance", function() {
 
 
 
-test("public dynamic variables through methods",function(){
+test("public dynamic through methods",function(){
 	
 	var Animal = jfork.Class({
 		var1:"a",
@@ -153,32 +153,231 @@ test("public dynamic variables through methods",function(){
 
 
 
-
-
-module("Method Return Types");
-
-
-
-
-
-
-
-module("Method Arguments");
+test("private dynamic",function(){
+	
+	
+	ok(true);
+	
+});
 
 
 
 
+test("Static",function(){
+	
+	var Animal = jfork.Class({
+		var1:"a",
+		"static var2":"b",
+		"static String var3":"c",
+		"static Number var4":1,
+		"static Unknown var5":"yoyo",
+		"static Variant var6":"hello",
+		setVar1:function(v){ this.var1 = v; },
+		setVar2:function(v){ this.var2 = v; },
+		setVar3:function(v){ this.var3 = v; },
+		setVar4:function(v){ this.var4 = v; },
+		setVar5:function(v){ this.var5 = v; },
+		setVar6:function(v){ this.var6 = v; },
+		getVar1:function(){ return this.var1; },
+		getVar2:function(){ return this.var2; },
+		getVar3:function(){ return this.var3; },
+		getVar4:function(){ return this.var4; },
+		getVar5:function(){ return this.var5; },
+		getVar6:function(){ return this.var6; },
+	});
+	
+	var dog = new Animal();
+	var cat = new Animal();
+	
+	ok(Animal.var1==undefined);
+	ok(Animal.var2=="b");
+	ok(Animal.var3=="c");
+	ok(Animal.var4==1);
+	ok(Animal.var5=="yoyo");
+	ok(Animal.var6=="hello");
+	
+	ok(dog.var1=="a");
+	ok(dog.var2=="b");
+	ok(dog.var3=="c");
+	ok(dog.var4==1);
+	ok(dog.var5=="yoyo");
+	ok(dog.var6=="hello");
+	
+	Animal.var2 = 1;
+	ok(Animal.var2==1);
+	ok(dog.var2==1);
+	ok(cat.getVar2()==1);
+	
+	dog.var2 = 2;
+	ok(Animal.var2==2);
+	ok(dog.var2==2);
+	ok(cat.getVar2()==2);
+	
+	cat.setVar2(3);
+	ok(Animal.var2==3);
+	ok(dog.var2==3);
+	ok(cat.getVar2()==3);
+	
+	var spider = new Animal();
+	ok(spider.var2==3);
+	ok(spider.getVar2()==3);
+	
+	spider.var2 = 4;
+	ok(Animal.var2==4);
+	ok(dog.var2==4);
+	ok(cat.getVar2()==4);
+	
+	throws(function(){
+		dog.var4 = "asdf";
+	});
+	
+	throws(function(){
+		cat.setVar3(new Date());
+	});
+	
+});
 
 
 
-module("Private Variables and Methods");
+test("Private Static",function(){
+	
+	var Animal = jfork.Class({
+		var1:"a",
+		"private static var2":"b",
+		"private static String var3":"c",
+		"private static Number var4":1,
+		"private static Unknown var5":"yoyo",
+		"private static Variant var6":"hello",
+		"static setVar1":function(v){ this.var1 = v; },
+		"static setVar2":function(v){ this.var2 = v; },
+		"static setVar3":function(v){ this.var3 = v; },
+		setVar4:function(v){ this.var4 = v; },
+		"static setVar5":function(v){ this.var5 = v; },
+		"static setVar6":function(v){ this.var6 = v; },
+		"static getVar1":function(){ return this.var1; },
+		"static getVar2":function(){ return this.var2; },
+		"static getVar3":function(){ return this.var3; },
+		getVar4:function(){ return this.var4; },
+		"static getVar5":function(){ return this.var5; },
+		"static getVar6":function(){ return this.var6; },
+	});
+	
+	var dog = new Animal();
+	
+	ok(Animal.var1==undefined);
+	ok(Animal.var2==undefined);
+	ok(Animal.var3==undefined);
+	ok(Animal.var4==undefined);
+	ok(Animal.var5==undefined);
+	ok(Animal.var6==undefined);
+	
+	ok(dog.var1=="a");
+	ok(dog.var2==undefined);
+	ok(dog.var3==undefined);
+	ok(dog.var4==undefined);
+	ok(dog.var5==undefined);
+	ok(dog.var6==undefined);
+	
+	ok(Animal.getVar1()==undefined);
+	ok(dog.getVar1()==undefined);
+	
+	Animal.setVar1("anything");
+	ok(dog.var1=="a");
+	
+	dog.setVar1("something");
+	ok(dog.var1=="a");
+	
+	ok(Animal.getVar2()=="b");
+	ok(Animal.getVar3()=="c");
+	ok(Animal.getVar4==undefined);
+	ok(Animal.getVar5()=="yoyo");
+	ok(Animal.getVar6()=="hello");
+	
+	ok(dog.getVar2()=="b");
+	ok(dog.getVar3()=="c");
+	ok(dog.getVar4()==1);
+	ok(dog.getVar5()=="yoyo");
+	ok(dog.getVar6()=="hello");
+	
+	Animal.setVar2("turtle");
+	ok(Animal.getVar2()=="turtle");
+	ok(dog.getVar2()=="turtle");
+	
+	dog.setVar4(22);
+	ok(dog.getVar4()==22);
+	
+	var cat = new Animal();
+	ok(cat.getVar2()=="turtle");
+	ok(cat.getVar4()==22);
+
+	throws(function(){
+		cat.setVar4("any string");
+	});
+	
+	throws(function(){
+		Animal.setVar3(85);
+	});
+	
+});
 
 
 
 
 
 
-module("Static Variables and Methods");
+
+
+
+
+module("Methods");
+
+test("Argument Types",function(){
+	
+	ok(true);
+	
+});
+
+
+test("Return Types",function(){
+	
+	ok(true);
+	
+});
+
+
+test("Overloading",function(){
+	
+	ok(true);
+	
+});
+
+
+
+test("Static",function(){
+	
+	ok(true);
+	
+});
+
+
+
+test("Private",function(){
+	
+	ok(true);
+	
+});
+
+
+
+test("Private Static",function(){
+	
+	ok(true);
+	
+});
+
+
+
+
 
 
 

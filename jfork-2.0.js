@@ -56,7 +56,7 @@ jfork.addTypeCheck("Date",function(o){
 });
 
 jfork.addTypeCheck("Element",function(o){
-	return o && (o instanceof HTMLElement || "undefined" !== typeof o.childNodes || o.nodeType) ? true : false;
+	return o && ((HTMLElement && o instanceof HTMLElement) || "undefined" !== typeof o.childNodes || o.nodeType) ? true : false;
 });
 
 jfork.addTypeCheck("Array",function(o){
@@ -491,6 +491,7 @@ jfork.Class = function(defaultSignature){
 		
 		var instanceHash = getRandomString(30);
 		var instance = {publicDynamic:observe.create(),privateDynamic:observe.create(),storage:{variables:{},methods:{}}}; //Dynamic Storage
+		instances[instanceHash] = instance;
 		
 		var addDynamic = function(def,val){
 			//Add Method
@@ -547,6 +548,9 @@ jfork.Class = function(defaultSignature){
 				bindVariable(def.name,instance.storage.variables,contexts);
 			}
 		};
+		
+		
+		
 
 		//Defines dynamic and static - from dynamic methods and instance
 		instance.publicDynamic.define = instance.privateDynamic.define = function(a,b){
@@ -573,12 +577,29 @@ jfork.Class = function(defaultSignature){
 		//Setup defaultSignature
 		jfork.each(defaultSignature,function(i,v){
 			var def = parseDef(i);
-			if(!def.isStatic){
-				addDynamic(def,v);
+			if(def.isStatic){
+				//Static Method To Instance
+				if(jfork.is.Function(v)){
+					var contexts = [];
+					if(!def.isPrivate){
+						contexts.push(instance.publicDynamic);
+					}
+					contexts.push(instance.privateDynamic);
+					bindMethod(def.name,clazz.storage.methods,contexts,clazz.privateStatic);
+				//Static Variable To Instance
+				} else {
+					var contexts = [];
+					if(!def.isPrivate){
+						contexts.push(instance.publicDynamic);
+					}
+					contexts.push(instance.privateDynamic);
+					bindVariable(def.name,clazz.storage.variables,contexts);
+				}
+			} else {
+				addDynamic(def,v);				
 			}
 		});
 		
-		instances[instanceHash] = instance;
 		return instance.publicDynamic;
 	};
 	clazz.publicStatic = newClazz;
@@ -637,6 +658,7 @@ window.jfork = jfork;
   	- private, public
   	- static, dynamic
   	- variables, functions
+  	- need to deep clone on objects and arrays.. being set as variables
   	- instanceOf
   	- extends
   	- super???
