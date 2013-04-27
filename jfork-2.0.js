@@ -10,6 +10,15 @@
 
 (function(window, undefined) {
 	
+	
+//Check if supported
+if(!Object.defineProperty){
+	alert("jfork not supported");
+	return;
+}
+	
+	
+	
 var jfork = {};
 
 
@@ -231,12 +240,71 @@ jfork.each = function(o,func){
 
 
 
+jfork.Class = function(classSignature,extend){
+	
+	//Storage Structure
+	//- varaibles: {name:{type:"Variant|null",isPrivate:bool,value:"",context:{}},...}
+	//- methods: {name:[{type:"Variant|null",isPrivate:bool,isArgsObject:bool,args:null|[{name:"asdf",type:"Variant|null"}],func:function(){},context:{}},...],...}
+	var clazz = {
+		privateStatic:null,
+		publicStatic:null,
+		storage:{variables:{},methods:{}},
+		instances:[], //[{privateDynamic:function(){},publicDynamic:{},storage},...]
+		extend:extend || null
+	};
+	
+	var newClass = function(){	
+		if(this instanceof newClass){ return; }
+		
+		var instance = {publicDynamic:new clazz.publicStatic(),privateDynamic:bind(newClass),storage:{variables:{},methods:{}}};
+		clazz.instances.push(instance);
+
+		
+		
+		
+		return instance.publicDynamic;
+	};
+	
+	clazz.publicStatic = newClass;
+	clazz.privateStatic = bind(newClass); //Bound so that it will have a new context
+	
+	//Add prototypes for instanceof
+	clazz.publicStatic.prototype = extend ? new extend.publicStatic() : {};
+	clazz.publicStatic.prototype.constructor = clazz.publicStatic;
+	
+
+	
+	
+	
+	//Defines static and stores dynamic to defaultSignature - from static methods and Class
+	clazz.publicStatic.define = clazz.privateStatic.define = function(a,b){
+		
+	};
+	
+	//Extend - extends the current class to create a new one
+	clazz.publicStatic.extend = function(extendClassSignature){
+		return jfork.Class(extendClassSignature,clazz);
+	};
+	
+	//Setup defaultSignature
+	clazz.publicStatic.define(classSignature);
+
+	return clazz.publicStatic;
+};
+
+
+
+
+
+
+
+
 //Storage Structure
 // - varaibles: {name:{type:"Variant|null",isPrivate:bool,value:""},...}
 // - methods: {name:[{type:"Variant|null",isPrivate:bool,isArgsObject:bool,args:null|[{name:"asdf",type:"Variant|null"}],func:function(){}},...],...}
-var classes = {};//{hashcode:{privateStatic:{},publicStatic:{},storage:{}},...}
+//var classes = {};//{hashcode:{privateStatic:{},publicStatic:{},storage:{}},...}
 
-jfork.Class = function(defaultSignature){
+jfork.oldClass = function(defaultSignature){
 
 	var clazzHash = getRandomString(30);
 	var clazz = {privateStatic:observe.create(),storage:{variables:{},methods:{}},publicStatic:null};

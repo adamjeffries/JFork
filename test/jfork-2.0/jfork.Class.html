@@ -18,10 +18,35 @@ module("Basic Use Cases");
 
 
 
-test("instance of", function(){
+test("instanceof", function(){
 	
-	ok(true);
+	var Animal = jfork.Class({});	
+	var Mammal = Animal.extend({});	
+	var Person = Mammal.extend({});
+	
+	var ant = Animal();
+	var lion = Mammal();
+	var bob = Person();
+	
+	ok(ant instanceof Object);
+	ok(ant instanceof Animal);
+	
+	ok(lion instanceof Object);
+	ok(lion instanceof Animal);
+	ok(lion instanceof Mammal);
+	
+	ok(bob instanceof Object);
+	ok(bob instanceof Animal);
+	ok(bob instanceof Mammal);
+	ok(bob instanceof Person);
+	
 });
+
+
+
+ 
+ 
+
 
 
 test("instance independence", function() {
@@ -55,7 +80,7 @@ test("instance independence", function() {
 	ok(dog.numLegs == 3,"dog.numLegs == 3");
 });
 
-
+/*
 
 
 
@@ -411,7 +436,7 @@ module("Complex Tests");
 
 
 
-
+*/
   
 </script>
 </body>
