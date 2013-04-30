@@ -17,38 +17,6 @@ module("Basic Use Cases");
 
 
 
-
-test("instanceof", function(){
-	
-	var Animal = jfork.Class({});	
-	var Mammal = Animal.extend({});	
-	var Person = Mammal.extend({});
-	
-	var ant = Animal();
-	var lion = Mammal();
-	var bob = Person();
-	
-	ok(ant instanceof Object);
-	ok(ant instanceof Animal);
-	
-	ok(lion instanceof Object);
-	ok(lion instanceof Animal);
-	ok(lion instanceof Mammal);
-	
-	ok(bob instanceof Object);
-	ok(bob instanceof Animal);
-	ok(bob instanceof Mammal);
-	ok(bob instanceof Person);
-	
-});
-
-
-
- 
- 
-
-
-
 test("instance independence", function() {
 	var Animal = jfork.Class({
 		hasTeeth:false,
@@ -60,8 +28,8 @@ test("instance independence", function() {
 			return this.numLegs;
 		}
 	});
-	var dog = new Animal();
-	var spider = new Animal();
+	var dog = Animal();
+	var spider = Animal();
 	
 	ok(Animal.numLegs == undefined,"Animal.numLegs == undefined");
 	ok(dog.numLegs == 4,"dog.numLegs == 4");
@@ -74,13 +42,13 @@ test("instance independence", function() {
 	ok(spider.numLegs == 8,"spider.numLegs == 8");
 	ok(dog.numLegs == 3,"dog.numLegs == 3");
 	
-	var cat = new Animal();
+	var cat = Animal();
 	ok(cat.numLegs == 4,"cat.numLegs == 4");
 	ok(spider.numLegs == 8,"spider.numLegs == 8");
 	ok(dog.numLegs == 3,"dog.numLegs == 3");
 });
 
-/*
+
 
 
 
@@ -98,7 +66,7 @@ test("public dynamic on instance", function() {
 		"Variant var6":"hello"
 	});
 	
-	var dog = new Animal();
+	var dog = Animal();
 	
 	ok(dog.var1=="a","var1==a");
 	ok(dog.var2=="b","var2==b");
@@ -149,7 +117,7 @@ test("public dynamic through methods",function(){
 		setVar6:function(v){ this.var6 = v; }
 	});
 	
-	var dog = new Animal();
+	var dog = Animal();
 
 	dog.setVar1(5);
 	ok(dog.var1==5,"var1==5");
@@ -180,8 +148,62 @@ test("public dynamic through methods",function(){
 
 test("private dynamic",function(){
 	
+	var Animal = jfork.Class({
+		"private var1":123,
+		"private Array var2":null,
+		"private String var3":"c",
+		"private Number var4":1,
+		"private unknown var5":"yoyo",
+		"private Variant var6":"hello",
+
+		"private setVar1":				function(v){ this.var1 = v; },
+		"private setVar2(v)":			function(v){ this.var2 = v; },
+		"private setVar3(String v)":	function(v){ this.var3 = v; },
+		"private setVar4(asdf v)":		function(v){ this.var4 = v; },
+		"private setVar5(Variant v)":	function(v){ this.var5 = v; },
+		"private setVar6(v)":			function(v){ this.var6 = v; },
+		
+		getSet1:function(v){ this.setVar1(v); return this.var1; },
+		getSet2:function(v){ this.setVar2(v); return this.var2; },
+		getSet3:function(v){ this.setVar3(v); return this.var3; },
+		getSet4:function(v){ this.setVar4(v); return this.var4; },
+		getSet5:function(v){ this.setVar5(v); return this.var5; },
+		getSet6:function(v){ this.setVar6(v); return this.var6; }
+	});
 	
-	ok(true);
+	var dog = Animal();
+
+	ok(dog.setVar1==undefined);
+	ok(dog.var1==undefined);
+	ok(dog.getSet1(25)==25);
+	
+	ok(dog.setVar2==undefined);
+	ok(dog.var2==undefined);
+	ok(dog.getSet2([1,2,3]).length==3);
+	
+	ok(dog.setVar3==undefined);
+	ok(dog.var3==undefined);
+	ok(dog.getSet3("hello")=="hello");
+	
+	ok(dog.setVar4==undefined);
+	ok(dog.var4==undefined);
+	ok(dog.getSet4(123)==123);
+	
+	ok(dog.setVar5==undefined);
+	ok(dog.var5==undefined);
+	ok(dog.getSet5("anything")=="anything");
+	
+	ok(dog.setVar6==undefined);
+	ok(dog.var6==undefined);
+	ok(dog.getSet6("more anything")=="more anything");
+	
+	throws(function(){
+		dog.getSet3(new Date());
+	},"dog.var3=Date throws");
+	
+	throws(function(){
+		dog.getSet4(new Date());
+	},"dog.var4=Date throws");
 	
 });
 
@@ -211,8 +233,8 @@ test("Static",function(){
 		getVar6:function(){ return this.var6; },
 	});
 	
-	var dog = new Animal();
-	var cat = new Animal();
+	var dog = Animal();
+	var cat = Animal();
 	
 	ok(Animal.var1==undefined);
 	ok(Animal.var2=="b");
@@ -243,7 +265,7 @@ test("Static",function(){
 	ok(dog.var2==3);
 	ok(cat.getVar2()==3);
 	
-	var spider = new Animal();
+	var spider = Animal();
 	ok(spider.var2==3);
 	ok(spider.getVar2()==3);
 	
@@ -287,7 +309,8 @@ test("Private Static",function(){
 		"static getVar6":function(){ return this.var6; },
 	});
 	
-	var dog = new Animal();
+	var dog = Animal();
+	
 	
 	ok(Animal.var1==undefined);
 	ok(Animal.var2==undefined);
@@ -331,7 +354,7 @@ test("Private Static",function(){
 	dog.setVar4(22);
 	ok(dog.getVar4()==22);
 	
-	var cat = new Animal();
+	var cat = Animal();
 	ok(cat.getVar2()=="turtle");
 	ok(cat.getVar4()==22);
 
@@ -353,14 +376,122 @@ test("Private Static",function(){
 
 
 
-
 module("Methods");
+
+
 
 test("Argument Types",function(){
 	
-	ok(true);
+	var Animal = jfork.Class({
+		v1:null,
+		m1:					function(v){ this.v1 = v; },
+		"m2()":				function(){ this.v1 = "yep"; },
+		"m3(v)":			function(v){ this.v1 = v; },
+		"m4(unknown v)":	function(v){ this.v1 = v; },
+		"m5(String v)":		function(v){ this.v1 = v; },
+		"m6(v,w)":			function(v,w){ this.v1 = v+w; },
+		"m7(Array v)":		function(v){ this.v1 = v.length; },
+		"m8(Integer a, Array b, String c)":	function(a,b,c){ this.v1 = a+","+b.length+","+c; },
+		
+		"m9(Integer[] asdfasdf)":	function(v){ this.v1 = v.length; },
+		"m10(unknown[] a, String[] b, c)": function(a,b,c){ this.v1 = a.length+b.length+c.length; },
+		
+		"m11({v})":			function(v){ this.v1 = v.v; },
+		"m12({Variant a, String b, c})":	function(v){ this.v1 = v.a +","+v.b+","+v.c; }		
+	});
+	
+	var dog = Animal();
+	
+	dog.m1("anything");
+	ok(dog.v1=="anything");
+	
+	dog.m2();
+	ok(dog.v1=="yep");
+	throws(function(){
+		dog.m2("anything");
+	});
+	
+	dog.m3("anything");
+	ok(dog.v1=="anything");
+	throws(function(){
+		dog.m3("good","too much");
+	});
+	
+	dog.m4("anythingagain");
+	ok(dog.v1=="anythingagain");
+	throws(function(){
+		dog.m4(); //Too little
+	});
+	
+	dog.m5("Any String");
+	ok(dog.v1=="Any String");
+	throws(function(){
+		dog.m5(123);
+	});
+	
+	dog.m6(5,6);
+	ok(dog.v1==11);
+	throws(function(){
+		dog.m6("too little");
+	});
+	throws(function(){
+		dog.m6(1,2,"too much");
+	});
+	
+	dog.m7([1,2,3]);
+	ok(dog.v1==3);
+	throws(function(){
+		dog.m7("must be an array");
+	});
+	
+	dog.m8(123, [1,2,3], "three");
+	ok(dog.v1=="123,3,three");
+	throws(function(){
+		dog.m8(132, [1,2,3], 123);
+	});
+	
+	dog.m9([1,2,3]);
+	ok(dog.v1==3);
+	throws(function(){
+		dog.m9([1,"hello",3]);
+	});
+	throws(function(){
+		dog.m9(123);
+	});
+	
+	dog.m10([1,new Date()],["one","two","three"],[1,2,3,4]);
+	ok(dog.v1="2,3,4");
+	throws(function(){
+		dog.m10("asdf",["one","two","three"],[1,2,3,4]);
+	});
+	throws(function(){
+		dog.m10([1,new Date()],["one",123,"three"],[1,2,3,4]);
+	});
+	
+	dog.m11({v:"hello"});
+	ok(dog.v1=="hello");
+	throws(function(){
+		dog.m11("hello");
+	});
+	throws(function(){
+		dog.m11({wrong:"hello"});
+	});
+	
+	dog.m12({a:123,b:"hello",c:"hmm"});
+	ok(dog.v1=="123,hello,hmm");
+	throws(function(){
+		dog.m12({a:123,bbb:"hello",c:"hmm"});
+	});
+	throws(function(){
+		dog.m12({a:123,c:"hmm"});
+	});
+	throws(function(){
+		dog.m12({a:123,bbb:123,c:"hmm"});
+	});
 	
 });
+
+
 
 
 test("Return Types",function(){
@@ -401,6 +532,9 @@ test("Private Static",function(){
 });
 
 
+/*
+
+
 
 
 
@@ -418,9 +552,32 @@ module("Constructors");
 
 
 
-module("Extends");
+module("Inheritance");
 
 
+test("instanceof", function(){
+	
+	var Animal = jfork.Class({});	
+	var Mammal = Animal.extend({});	
+	var Person = Mammal.extend({});
+	
+	var ant = Animal();
+	var lion = Mammal();
+	var bob = Person();
+	
+	ok(ant instanceof Object);
+	ok(ant instanceof Animal);
+	
+	ok(lion instanceof Object);
+	ok(lion instanceof Animal);
+	ok(lion instanceof Mammal);
+	
+	ok(bob instanceof Object);
+	ok(bob instanceof Animal);
+	ok(bob instanceof Mammal);
+	ok(bob instanceof Person);
+	
+});
 
 
 
