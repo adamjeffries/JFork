@@ -497,7 +497,6 @@ jfork.Class = function(defaultSignature,extend){
 				var paramDuplicates = {};
 				jfork.each(sig.params,function(i,v){
 					if(paramDuplicates[v.name]){
-						console.log(v.name);
 						jfork.Class.error(sig.name + ": cannot have two parameters with the same name (" + v.name + ")");
 					}
 					paramDuplicates[v.name] = true;
@@ -512,9 +511,6 @@ jfork.Class = function(defaultSignature,extend){
 	
 	//Are Params Equal
 	var areParamsEqual = function(sig1,sig2){
-		console.log(sig1);
-		console.log(sig2);
-		console.log("------");
 		if(!sig1.params || !sig2.params){
 			return true;
 		} else if(sig1.params.length == sig2.params.length && sig1.isParamObject == sig2.isParamObject) {
@@ -570,8 +566,43 @@ jfork.Class = function(defaultSignature,extend){
 		};
 		
 		//Run extended constructor and bind its methods and variables
-		if(clazz.extend){
+		if(clazz.extend){			
+			instance.publicDynamic._super = instance.privateDynamic._super = clazz.extend.publicStatic.apply(null,args);
 			
+			var applyExtend = function(curExtend){
+				if(!curExtend){
+					return;
+				} else if(curExtend.extend){
+					applyExtend(curExtend.extend);
+				}
+				jfork.each(curExtend.signature.methods,function(i,v){
+					if(!clazz.signature.methods[i]){
+						var contexts = [instance.privateDynamic];
+						if(!v.isPrivate){
+							contexts.push(instance.publicDynamic);
+						}
+						var applyTo = curExtend.staticMapping.methods[i];
+						if(!v.isStatic){
+							applyTo = curExtend.instances[curExtend.instances.length-1].dynamicMapping.methods[i];
+						}
+						bindMethod(v,applyTo,contexts);	
+					}
+				});
+				jfork.each(curExtend.signature.variables,function(i,v){
+					if(!clazz.signature.variables[i]){
+						var contexts = [instance.privateDynamic];
+						if(!v.isPrivate){
+							contexts.push(instance.publicDynamic);
+						}
+						var applyTo = curExtend.staticMapping.variables[i];
+						if(!v.isStatic){
+							applyTo = curExtend.instances[curExtend.instances.length-1].dynamicMapping.variables[i];
+						}
+						bindVariable(v,applyTo,contexts);	
+					}
+				});
+			};	
+			applyExtend(clazz.extend);
 		}
 				
 		//Bind Variables and Methods to Instance
@@ -604,12 +635,12 @@ jfork.Class = function(defaultSignature,extend){
 		//Run Local Constructor
 		var constructorFound = jfork.each(clazz.signature.constructors,function(i,v){
 			if(checkParams(args,v)){
-				v.func.apply(instance.privateDynamic,args);
+				v.value.apply(instance.privateDynamic,args);
 				return true;
 			}
 		});
 		if(!constructorFound && (clazz.signature.constructors.length > 0 || (clazz.signature.constructors.length == 0 && args.length > 0))){
-			jfork.Class.error("No constructor found with these parameters.");
+			jfork.Class.error("No constructor found matching these parameters.");
 		}
 
 		return instance.publicDynamic;
@@ -734,34 +765,36 @@ jfork.Class = function(defaultSignature,extend){
 	clazz.publicStatic.define(defaultSignature);
 	
 	//Setup extended Class Signature
-	if(clazz.extend){
-		jfork.each(clazz.extend.signature.methods,function(i,v){
-			if(!clazz.signature.methods[i]){
-				clazz.signature.methods[i] = v;
-				if(v.isStatic){
-					clazz.staticMapping.methods[i] = clazz.extend.staticMapping.methods[i];
-					var contexts = [clazz.privateStatic];
-					if(!v.isPrivate){
-						contexts.push(clazz.publicStatic);
-					}
-					bindMethod(v,clazz.staticMapping.methods[i],contexts);	
+	var applyStaticExtend = function(curExtend){
+		if(!curExtend){
+			return;
+		} else if(curExtend.extend){
+			applyStaticExtend(curExtend.extend);
+		}
+		jfork.each(curExtend.signature.methods,function(i,v){
+			if(v.isStatic && !clazz.signature.methods[i]){
+				clazz.staticMapping.methods[i] = curExtend.staticMapping.methods[i];
+				var contexts = [clazz.privateStatic];
+				if(!v.isPrivate){
+					contexts.push(clazz.publicStatic);
 				}
+				bindMethod(v,clazz.staticMapping.methods[i],contexts);	
 			}
 		});
-		jfork.each(clazz.extend.signature.variables,function(i,v){
-			if(!clazz.signature.variables[i]){
-				clazz.signature.variables[i] = v;
-				if(v.isStatic){
-					clazz.staticMapping.variables[i] = clazz.extend.staticMapping.variables[i];	
-					var contexts = [clazz.privateStatic];
-					if(!v.isPrivate){
-						contexts.push(clazz.publicStatic);
-					}
-					bindVariable(v,clazz.staticMapping.variables[i],contexts);
+		jfork.each(curExtend.signature.variables,function(i,v){
+			if(v.isStatic && !clazz.signature.variables[i]){
+				console.log(i);
+				clazz.staticMapping.variables[i] = curExtend.staticMapping.variables[i];
+				var contexts = [clazz.privateStatic];
+				if(!v.isPrivate){
+					contexts.push(clazz.publicStatic);
 				}
+				bindVariable(v,clazz.staticMapping.variables[i],contexts);	
 			}
 		});
-	}
+	};	
+	applyStaticExtend(clazz.extend);
+
 
 	return clazz.publicStatic;
 };

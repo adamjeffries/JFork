@@ -653,15 +653,72 @@ test("Overloading",function(){
 
 test("Static",function(){
 	
-	ok(true);
+	var Animal = jfork.Class({
+		"static m1":function(){
+			return 1;
+		},
+		"static m2()":function(){
+			return this.m1() + 1;
+		},
+		"static m3(v)":function(v){
+			return this.m2()+v;
+		},
+		m4:function(){
+			return this.m3(3);
+		}
+	});
 	
+	var dog = Animal();
+	
+	ok(Animal.m1()==1);
+	ok(Animal.m2()==2);
+	ok(Animal.m3(2)==4);
+	
+	ok(dog.m1()==1);
+	ok(dog.m2()==2);
+	ok(dog.m3(2)==4);
+	ok(dog.m4()==5);
 });
 
 
 
 test("Private",function(){
 	
-	ok(true);
+	var Animal = jfork.Class({
+		"private m1":function(){
+			return 1;
+		},
+		"private m2()":function(){
+			return this.m1() + 1;
+		},
+		"m3(v)":function(v){
+			return this.m2()+v;
+		},
+		m4:function(){
+			return this.m3(3);
+		}
+	});
+	
+	var dog = Animal();
+	
+	throws(function(){
+		Animal.m1();
+	});
+	
+	throws(function(){
+		Animal.m4();
+	});
+	
+	throws(function(){
+		dog.m1();
+	});
+	
+	throws(function(){
+		dog.m2();
+	});
+	
+	ok(dog.m3(2)==4);
+	ok(dog.m4()==5);
 	
 });
 
@@ -669,15 +726,49 @@ test("Private",function(){
 
 test("Private Static",function(){
 	
-	ok(true);
+	var Animal = jfork.Class({
+		"private static m1":function(){
+			return 1;
+		},
+		"private static m2()":function(){
+			return this.m1() + 1;
+		},
+		"static m3(v)":function(v){
+			return this.m2()+v;
+		},
+		m4:function(){
+			return this.m3(3);
+		},
+		m5:function(){
+			return this.m2()+1;
+		}
+	});
+	
+	var dog = Animal();
+	
+	throws(function(){
+		Animal.m1();
+	});
+	
+	throws(function(){
+		Animal.m2();
+	});
+	
+	ok(Animal.m3(2)==4);
+	
+	throws(function(){
+		dog.m1();
+	});
+	
+	throws(function(){
+		dog.m2();
+	});
+	
+	ok(dog.m3(2)==4);
+	ok(dog.m4()==5);
+	ok(dog.m5()==3);
 	
 });
-
-
-/*
-
-
-
 
 
 
@@ -688,6 +779,255 @@ test("Private Static",function(){
 
 
 module("Constructors");
+
+
+
+test("Basic", function(){
+	
+	var Animal = jfork.Class({
+		v1:1,
+		"static v2":2,
+		"Integer v3":3,
+		v4:4,
+		construct:function(v1,v2,v3,v4){
+			this.v1=v1;
+			this.v2=v2;
+			this.setV3(v3);
+			this.setV4(v4);
+		},
+		setV3:function(v3){
+			this.v3 = v3;
+		},
+		"private setV4":function(v4){
+			this.v4 = v4;
+		}
+	});
+	
+	var dog = Animal(5,6,7,8);
+	var cat = Animal(9,10,11,12);
+	
+	ok(Animal.v2==10);
+	
+	ok(dog.v1==5);
+	ok(dog.v2==10);
+	ok(dog.v3==7);
+	ok(dog.v4==8);
+	
+	ok(cat.v1==9);
+	ok(cat.v2==10);	
+	ok(cat.v3==11);	
+	ok(cat.v4==12);	
+});
+
+
+
+test("Argument Types", function(){
+	
+	var Animal1 = jfork.Class({
+		v:null,
+		"construct()":function(){
+			this.v = 1;
+		}
+	});	
+	var animal1 = Animal1();
+	ok(animal1.v==1);
+	throws(function(){
+		Animal1(123);
+	});
+	
+	
+	var Animal2 = jfork.Class({
+		v:null,
+		"construct(v)":function(v){
+			this.v = v;
+		}
+	});	
+	var animal2 = Animal2(123);
+	ok(animal2.v==123);
+	throws(function(){
+		Animal2();
+	});
+	throws(function(){
+		Animal2("asdf",123);
+	});
+	
+	
+	var Animal3 = jfork.Class({
+		v:null,
+		"construct(String v)":function(v){
+			this.v = v;
+		}
+	});
+	var animal3 = Animal3("asdf");
+	ok(animal3.v=="asdf");
+	throws(function(){
+		Animal3();
+	});
+	throws(function(){
+		Animal3(123);
+	});
+	
+	
+	var Animal4 = jfork.Class({
+		v:null,
+		"construct(a,b,c)":function(a,b,c){
+			this.v = a+b+c;
+		}
+	});
+	var animal4 = Animal4(1,2,3);
+	ok(animal4.v==6);
+	throws(function(){
+		Animal4();
+	});
+	throws(function(){
+		Animal4("a","b");
+	});
+	
+	var Animal5 = jfork.Class({
+		v:null,
+		"construct(String a,b)":function(a,b){
+			this.v = a+b;
+		}
+	});
+	var animal5 = Animal5("asdf",5);
+	ok(animal5.v=="asdf5");
+	throws(function(){
+		Animal5(1,2);
+	});
+	throws(function(){
+		Animal5("asdf");
+	});
+	
+	
+	var Animal6 = jfork.Class({
+		v:null,
+		"construct(Integer[] a)":function(a){
+			this.v = a.length;
+		}
+	});
+	var animal6 = Animal6([1,2,3]);
+	var animal62 = Animal6([]);
+	ok(animal6.v==3);
+	ok(animal62.v==0);
+	throws(function(){
+		Animal6(["asdf",2,3]);
+	});
+	throws(function(){
+		Animal6(123);
+	});
+
+	
+	var Animal7 = jfork.Class({
+		v:null,
+		"construct({a,Integer b})":function(v){
+			this.v = v.a;
+		}
+	});
+	var animal7 = Animal7({a:"asdf",b:123});
+	var animal72 = Animal7({a:"jkl",b:123});
+	ok(animal7.v=="asdf");
+	ok(animal72.v=="jkl");
+	throws(function(){
+		Animal7({a:"asdf",b:"asdf"});
+	});
+	throws(function(){
+		Animal7({});
+	});
+	throws(function(){
+		Animal7("asdf");
+	});
+
+});
+
+
+
+test("Overloaded", function(){
+	
+	var Animal = jfork.Class({
+		v:0,
+		"construct()":function(){
+			this.v=1;
+		},
+		"construct(String a)":function(){
+			this.v=2;
+		},
+		"construct(Integer[] a)":function(){
+			this.v=3;
+		},
+		"construct(a,b)":function(){
+			this.v=4;
+		},
+		"construct({a,String b})":function(){
+			this.v=5;
+		}
+	});
+	
+	var animal1 = Animal();
+	ok(animal1.v==1);
+	
+	var animal2 = Animal("asdf");
+	ok(animal2.v==2);
+	
+	var animal3 = Animal([1,2,3]);
+	ok(animal3.v==3);
+	
+	var animal4 = Animal("asdf","asdf");
+	ok(animal4.v==4);
+	
+	var animal5 = Animal({a:1,b:"asdf"});
+	ok(animal5.v==5);
+	
+	
+	throws(function(){
+		jfork.Class({
+			construct:function(){},
+			"construct()":function(){}
+		});
+	});
+	
+	throws(function(){
+		jfork.Class({
+			"construct(String a)":function(){},
+			"construct(a)":function(){}
+		});
+	});
+	
+});
+
+
+
+test("Internal", function(){
+	
+	var Animal = jfork.Class({
+		v:0,
+		"private static instance":null,
+		"construct()":function(){
+			this.v = 1;
+		},
+		"construct(String v)":function(v){
+			this.v = v;
+		},
+		"static get()":function(){
+			if(!this.instance){
+				this.instance = this();
+			}
+			return this.instance;
+		}
+	});
+	
+	var animal1 = Animal.get();
+	animal1.v = 123;
+	var animal2 = Animal.get();
+	var animal3 = Animal("asdf");
+	
+	ok(animal1.v==123);
+	ok(animal2.v==123);
+	ok(animal3.v=="asdf");
+	ok(animal3.get().v==123);
+	
+});
+
+
 
 
 
@@ -722,6 +1062,204 @@ test("instanceof", function(){
 });
 
 
+
+test("Basic",function(){
+	
+	var Animal = jfork.Class({
+		"static v1":1,
+		v2:2,
+		"private v3":3,
+		getV3:function(){
+			return this.v3;
+		},
+		setV3:function(v3){
+			this.v3 = v3;
+		}
+	});
+	
+	var Mammal = Animal.extend({
+		"static v4":4,
+		v5:5,
+		"private v6":6,
+		getV6:function(){
+			return this.v6;
+		},
+		setV6:function(v6){
+			this.v6 = v6;
+		},
+		getV3Mammal:function(){
+			return this.v3;
+		}
+	});
+	
+	var Person = Mammal.extend({
+		"static v7":7,
+		v8:8,
+		"private v9":9,
+		getV6:function(){
+			return this.v6+1;
+		},
+		setV6:function(v6){
+			this.v6 = v6+1;
+		},
+		getV3Person:function(){
+			return this.v3;
+		}
+	});
+	
+	var ant = Animal();
+	var worm = Animal();
+	
+	var dog = Mammal();
+	var cat = Mammal();
+	
+	var bob = Person();
+	var sue = Person();
+	
+	ok(Animal.v1==1);
+	ok(Mammal.v1==1);
+	ok(Person.v1==1);
+	ok(ant.v1==1);
+	ok(dog.v1==1);
+	ok(bob.v1==1);
+	ok(sue.v1==1);
+	
+	dog.v1=2;
+	ok(Animal.v1==2);
+	ok(Mammal.v1==2);
+	ok(Person.v1==2);
+	ok(ant.v1==2);
+	ok(dog.v1==2);
+	ok(bob.v1==2);
+	
+	bob.v1=3;
+	ok(Animal.v1==3);
+	ok(Mammal.v1==3);
+	ok(Person.v1==3);
+	ok(ant.v1==3);
+	ok(dog.v1==3);
+	ok(bob.v1==3);
+	
+	Animal.v1=4;
+	ok(Animal.v1==4);
+	ok(Mammal.v1==4);
+	ok(Person.v1==4);
+	ok(ant.v1==4);
+	ok(dog.v1==4);
+	ok(bob.v1==4);
+	
+	ok(Animal.v4==undefined);
+	ok(Mammal.v4==4);
+	ok(Person.v4==4);
+	ok(ant.v4==undefined);
+	ok(dog.v4==4);
+	ok(bob.v4==4);
+	
+	Mammal.v4=123;
+	ok(Animal.v4==undefined);
+	ok(Mammal.v4==123);
+	ok(Person.v4==123);
+	ok(ant.v4==undefined);
+	ok(dog.v4==123);
+	ok(bob.v4==123);
+	
+	ok(Animal.v2==undefined);
+	ok(ant.v2==2);
+	ok(Mammal.v2==undefined);
+	ok(dog.v2==2);
+	ok(Person.v2==undefined);
+	ok(bob.v2==2);
+	
+	dog.v2 = 4;
+	ok(ant.v2==2);
+	ok(worm.v2==2);
+	ok(dog.v2==4);
+	ok(dog._super.v2==4);
+	ok(cat.v2==2);
+	ok(bob.v2==2);
+	
+	ok(ant.getV3()==3);
+	ok(dog.getV3()==3);
+	ok(bob.getV3()==3);
+	ok(dog.getV3Mammal()==3);
+	ok(bob.getV3Person()==3);
+	
+	ant.setV3(4);
+	ok(ant.getV3()==4);
+	ok(dog.getV3()==3);
+	ok(bob.getV3()==3);
+	ok(dog.getV3Mammal()==3);
+	ok(bob.getV3Person()==3);
+	
+	dog.setV3(5);
+	ok(ant.getV3()==4);
+	ok(dog.getV3()==5);
+	ok(bob.getV3()==3);
+	ok(dog.getV3Mammal()==5);
+	ok(bob.getV3Person()==3);
+	
+	bob.setV3(6);
+	ok(ant.getV3()==4);
+	ok(dog.getV3()==5);
+	ok(bob.getV3()==6);
+	ok(dog.getV3Mammal()==5);
+	ok(bob.getV3Person()==6);
+	
+	ok(worm.getV3()==3);
+	ok(cat.getV3()==3);
+	ok(sue.getV3()==3);
+	ok(cat.getV3Mammal()==3);
+	ok(sue.getV3Person()==3);
+	
+	ok(dog.getV6()==6);
+	ok(bob.getV6()==7);
+	ok(bob._super.getV6()==6);
+	
+	dog.setV6(10);
+	ok(dog.getV6()==10);
+	ok(cat.getV6()==6);
+	ok(bob.getV6()==7);
+	ok(bob._super.getV6()==6);
+	
+	bob.setV6(11);
+	ok(dog.getV6()==10);
+	ok(cat.getV6()==6);
+	ok(bob.getV6()==13);
+	ok(bob._super.getV6()==12);
+	
+	bob._super.setV6(21);
+	ok(dog.getV6()==10);
+	ok(cat.getV6()==6);
+	ok(bob.getV6()==22);
+	ok(bob._super.getV6()==21);
+});
+
+
+
+test("Override Variables",function(){
+	
+	ok(true);
+	
+});
+
+
+
+test("Override Methods",function(){
+	
+	ok(true);
+	
+});
+
+
+
+test("Constructors",function(){
+	
+	ok(true);
+	
+});
+
+
+/*
 
 
 module("Add Custom Types");
