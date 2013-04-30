@@ -496,16 +496,158 @@ test("Argument Types",function(){
 
 test("Return Types",function(){
 	
-	ok(true);
+	var Animal = jfork.Class({
+		m1:function(v){ return v; },
+		"m2(v)":function(v){ return v; },
+		"unknown m3(v)":function(v){ return v; },
+		"Variant m4(v)":function(v){ return v; },
+		"String m5(v)":function(v){ return v; },
+		"Integer[] m6(v)":function(v){ return v; },
+		"Array m7(v)":function(v){ return v; },
+		"Object m8(v)":function(v){ return v; }
+	});
 	
+	var dog = Animal();
+	
+	ok(dog.m1("hello")=="hello");
+	
+	ok(dog.m2("world")=="world");
+	
+	ok(dog.m3("yoyo")=="yoyo");
+	
+	ok(dog.m4("whatup")=="whatup");
+	
+	ok(dog.m5("dog")=="dog");
+	throws(function(){
+		dog.m5(123);
+	});
+	
+	ok(dog.m6([1,2,3]).length==3);
+	ok(dog.m6([]).length==0);
+	throws(function(){
+		dog.m6(["asdf",1]);
+	});
+	throws(function(){
+		dog.m6();
+	});
+	
+	ok(dog.m7(["asdf",123,"hmm"]));
+	ok(dog.m7([]));
+	throws(function(){
+		dog.m7(123);
+	});
+	throws(function(){
+		dog.m7();
+	});
+	
+	ok(dog.m8({a:1}).a==1);
+	throws(function(){
+		dog.m8(new Date());
+	});
+	throws(function(){
+		dog.m8();
+	});
+	throws(function(){
+		dog.m8([]);
+	});
 });
+
+
+
 
 
 test("Overloading",function(){
+
+	//Note: Two methods with exactly the same name will be overriden on any JS object by the newest
 	
-	ok(true);
+	throws(function(){
+		jfork.Class({
+			m1:function(){},
+			"m1()":function(){}
+		});		
+	});
+
+	throws(function(){
+		jfork.Class({
+			m1:function(){},
+			"m1(v)":function(){}
+		});		
+	});
+	
+	throws(function(){
+		jfork.Class({
+			m1:function(){},
+			"m1(String v)":function(){}
+		});		
+	});
+	
+	throws(function(){
+		jfork.Class({
+			"m1(v)":function(){},
+			"m1(String v)":function(){}
+		});		
+	});
+
+	throws(function(){
+		jfork.Class({
+			"m1(unknown v)":function(){},
+			"m1(String v)":function(){}
+		});		
+	});	
+
+	throws(function(){
+		jfork.Class({
+			"String m1(v)":function(){ return "a"; },
+			"Integer m1(v)":function(){ return 1; }
+		});		
+	});
+	
+	var Animal = jfork.Class({
+		"static m0(Integer a)":function(){
+			return 1;
+		},
+		"static m0(a,String b)":function(){
+			return 2;
+		},
+		"static m0(Integer a, Integer b)":function(){
+			return 3;
+		},
+		"static m0({a,b})":function(){
+			return 4;
+		},
+		"m1(Integer v)":function(){
+			return 1;
+		},
+		"m1(String v)":function(){
+			return 2;
+		}
+	});
+	
+	var dog = Animal();
+	
+	ok(dog.m1(1)==1);
+	ok(dog.m1("asdf")==2);
+	throws(function(){
+		dog.m1();
+	});
+	throws(function(){
+		dog.m1(new Date());
+	});
+
+	ok(dog.m0(1)==1);
+	ok(dog.m0("asdf","123")==2);
+	ok(dog.m0(1,2)==3);
+	ok(dog.m0({a:1,b:2})==4);
+	
+	ok(Animal.m0(1)==1);
+	ok(Animal.m0("asdf","123")==2);
+	ok(Animal.m0(1,2)==3);
+	ok(Animal.m0({a:1,b:2})==4);
+	
 	
 });
+
+
 
 
 

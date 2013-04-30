@@ -282,9 +282,20 @@ jfork.Class = function(defaultSignature,extend){
 		};
 		if(signature.type){
 			setter = function(newValue){
-				if(!jfork.is[signature.type](newValue)){
-					jfork.Class.error(signature.name + ": is the wrong type.  Expected a " + signature.type);
-				}
+				if(signature.isTypeArray){
+					if(!jfork.is.Array(newValue)){
+						jfork.Class.error(signature.name + ": is the wrong type.  Expected a " + signature.type + "[]");
+					}
+					for(var i=0; i<newValue.length; i++){
+						if(!jfork.is[signature.type](newValue[i])){
+							jfork.Class.error(signature.name + ": is the wrong type.  Expected a " + signature.type + "[]");
+						}
+					}
+				} else {
+					if(!jfork.is[signature.type](newValue)){
+						jfork.Class.error(signature.name + ": is the wrong type.  Expected a " + signature.type);
+					}
+				}				
 				storage[signature.name] = newValue;
 			};
 		}
@@ -296,7 +307,7 @@ jfork.Class = function(defaultSignature,extend){
 
 	
 	//Check Parameters
-	var checkParams = function(parameters,signature){
+	var checkParams = function(parameters,signature){		
 		if(signature.params == null){
 			return true;
 		} else if(signature.isParamObject){
@@ -374,8 +385,17 @@ jfork.Class = function(defaultSignature,extend){
 			if(variations[0].type){
 				return function(){
 					var rtnval = funcA.apply(this,Array.prototype.slice.call(arguments));
-					if(!jfork.is[variations[0].type](rtnval)){
-						jfork.Class.error(variations[0].name + ": must return type " + variations[0].type);
+					if(variations[0].isTypeArray){
+						if(!jfork.is.Array(rtnval)){
+							jfork.Class.error(variations[0].name + ": must return type " + variations[0].type + "[]");
+						}
+						for(var i=0; i<rtnval.length; i++){
+							if(!jfork.is[variations[0].type](rtnval[i])){
+								jfork.Class.error(variations[0].name + ": must return type " + variations[0].type + "[]");
+							}
+						}
+					} else if(!jfork.is[variations[0].type](rtnval)){
+						jfork.Class.error(variations[0].name + ": must return type " + variations[0].type);						
 					}
 					return rtnval;
 				};
@@ -392,13 +412,25 @@ jfork.Class = function(defaultSignature,extend){
 						return i;
 					}
 				});
-				if(!validvariationsIndex){
+				if(!validvariationsIndex===undefined){
 					jfork.Class.error(variations[validvariationsIndex].name + ": parameters passed do not match method signature");
 				}
-				var rtnval = variations[validvariationsIndex].func.apply(context,args);
-				if(variations[validvariationsIndex].type && !jfork.is[variations[validvariationsIndex].type](rtnval)){
-					jfork.Class.error(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type);
-				}				
+				var rtnval = variations[validvariationsIndex].value.apply(this,args);
+				if(variations[validvariationsIndex].type){
+					if(variations[validvariationsIndex].isTypeArray){
+						if(!jfork.is.Array(rtnval)){
+							jfork.Class.error(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type + "[]");
+						}
+						for(var i=0; i<rtnval.length; i++){
+							if(!jfork.is[variations[validvariationsIndex].type](rtnval[i])){
+								jfork.Class.error(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type + "[]");
+							}
+						}
+						
+					} else if(!jfork.is[variations[validvariationsIndex].type](rtnval)){
+						jfork.Class.error(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type);
+					}
+				}		
 				return rtnval;
 			};
 		}
@@ -418,6 +450,7 @@ jfork.Class = function(defaultSignature,extend){
 		var sig = {
 			name:defLeftParts[defLeftParts.length-1],
 			type:null,
+			isTypeArray:false,
 			isParamObject:false,
 			params:null,
 			isPrivate:(def.indexOf("private") > -1) ? true : false,
@@ -427,7 +460,13 @@ jfork.Class = function(defaultSignature,extend){
 		
 		if(defLeftParts.length > 1){
 			var possibleType = defLeftParts[defLeftParts.length-2];
+			var isTypeArray = false;
+			if(possibleType.indexOf("[]") > -1){
+				isTypeArray = true;
+				possibleType = possibleType.replace("[]","");
+			}
 			if(jfork.hasTypeCheck(possibleType)){
+				sig.isTypeArray = isTypeArray;
 				sig.type = possibleType;
 			}
 		}
@@ -473,10 +512,11 @@ jfork.Class = function(defaultSignature,extend){
 	
 	//Are Params Equal
 	var areParamsEqual = function(sig1,sig2){
-		if(!sig1.params && !sig2.params){
+		console.log(sig1);
+		console.log(sig2);
+		console.log("------");
+		if(!sig1.params || !sig2.params){
 			return true;
-		} else if(!sig1.params || !sig2.params){
-			return false;
 		} else if(sig1.params.length == sig2.params.length && sig1.isParamObject == sig2.isParamObject) {
 			for(var i=0; i<sig1.params.length; i++){
 				if(sig1.params[i].type != sig2.params[i].type && sig1.params[i].type != null && sig1.params[i].type != "Variant" && sig2.params[i].type != null && sig2.params[i].type != "Variant"){
