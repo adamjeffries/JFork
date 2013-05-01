@@ -1238,42 +1238,585 @@ test("Basic",function(){
 
 test("Override Variables",function(){
 	
-	ok(true);
+	var Animal = jfork.Class({
+		v1:1,
+		v2:2,
+		v3:3,
+		"static v5":5,
+		"static v6":6,
+		"static v7":7
+	});
+	
+	var Mammal = Animal.extend({
+		v1:10,
+		v2:20,
+		v9:90,
+		"static v5":50,
+		"static v6":60,
+		"static v10":100,
+		setV2:function(v){
+			this.v2 = v;
+		},
+		setV6:function(v){
+			this.v6 = v;
+		}
+	});
+	
+	var Person = Mammal.extend({
+		v1:100,
+		v3:300,
+		v9:900,
+		"static v5":500,
+		"static v7":700,
+		"static v10":100,
+		setV1:function(v){
+			this.v1 = v;
+		},
+		setV3:function(v){
+			this.v3 = v;
+		},
+		setV5:function(v){
+			this.v5 = v;
+		},
+		setV7:function(v){
+			this.v7 = v;
+		},
+		setV9:function(v){
+			this.v9 = v;
+		},
+		setV10:function(v){
+			this.v10 = v;
+		}
+	});
+	
+	var bob = Person();
+	var sue = Person();
+	
+	
+	ok(bob.v1==100);
+	ok(bob._super.v1==10);
+	ok(bob._super._super.v1==1);
+	
+	bob.v1 = 101;
+	ok(bob.v1==101);
+	ok(bob._super.v1==10);
+	ok(bob._super._super.v1==1);
+	
+	bob._super.v1 = 11;
+	ok(bob.v1==101);
+	ok(bob._super.v1==11);
+	ok(bob._super._super.v1==1);
+	
+	bob._super._super.v1 = 2;
+	ok(bob.v1==101);
+	ok(bob._super.v1==11);
+	ok(bob._super._super.v1==2);
+	
+	bob.setV1(102);
+	ok(bob.v1==102);
+	ok(bob._super.v1==11);
+	ok(bob._super._super.v1==2);
+	
+	ok(sue.v1==100);
+	ok(sue._super.v1==10);
+	ok(sue._super._super.v1==1);
+	
+	
+	ok(bob.v2==20);
+	ok(bob._super.v2==20);
+	ok(bob._super._super.v2==2);
+	
+	bob.v2 = 30;
+	ok(bob.v2==30);
+	ok(bob._super.v2==30);
+	ok(bob._super._super.v2==2);
+	
+	bob._super.v2 = 40;
+	ok(bob.v2==40);
+	ok(bob._super.v2==40);
+	ok(bob._super._super.v2==2);
+
+	bob._super._super.v2 = 3;
+	ok(bob.v2==40);
+	ok(bob._super.v2==40);
+	ok(bob._super._super.v2==3);
+	
+	bob.setV2(50);
+	ok(bob.v2==50);
+	ok(bob._super.v2==50);
+	ok(bob._super._super.v2==3);
+	
+	ok(sue.v2==20);
+	ok(sue._super.v2==20);
+	ok(sue._super._super.v2==2);
+	
+	
+	ok(bob.v3==300);
+	ok(bob._super.v3==3);
+	ok(bob._super._super.v3==3);
+	
+	bob.v3=400;
+	ok(bob.v3==400);
+	ok(bob._super.v3==3);
+	ok(bob._super._super.v3==3);
+	
+	bob._super.v3 = 40;
+	ok(bob.v3==400);
+	ok(bob._super.v3==40);
+	ok(bob._super._super.v3==40);
+	
+	bob._super._super.v3 = 50;
+	ok(bob.v3==400);
+	ok(bob._super.v3==50);
+	ok(bob._super._super.v3==50);
+	
+	bob.setV3(500);
+	ok(bob.v3==500);
+	ok(bob._super.v3==50);
+	ok(bob._super._super.v3==50);
+	
+	ok(sue.v3==300);
+	ok(sue._super.v3==3);
+	ok(sue._super._super.v3==3);
+	
+	
+	ok(bob.v9==900);
+	ok(bob._super.v9==90);
+	ok(bob._super._super.v9==undefined);
+	
+	bob.v9=909;
+	ok(bob.v9==909);
+	ok(bob._super.v9==90);
+	ok(bob._super._super.v9==undefined);
+
+	bob._super.v9=99;
+	ok(bob.v9==909);
+	ok(bob._super.v9==99);
+	ok(bob._super._super.v9==undefined);
+	
+	bob.setV9(109);
+	ok(bob.v9==109);
+	ok(bob._super.v9==99);
+	ok(bob._super._super.v9==undefined);
+	
+	ok(sue.v9==900);
+	ok(sue._super.v9==90);
+	ok(sue._super._super.v9==undefined);
+	
+	
+	ok(bob.v5==500);
+	ok(bob._super.v5==50);
+	ok(bob._super._super.v5==5);
+	ok(sue.v5==500);
+	ok(sue._super.v5==50);
+	ok(sue._super._super.v5==5);
+	ok(Person.v5==500);
+	ok(Mammal.v5==50);
+	ok(Animal.v5==5);
+	
+	bob.v5 = 501;
+	ok(bob.v5==501);
+	ok(bob._super.v5==50);
+	ok(bob._super._super.v5==5);
+	ok(sue.v5==501);
+	ok(sue._super.v5==50);
+	ok(sue._super._super.v5==5);
+	ok(Person.v5==501);
+	ok(Mammal.v5==50);
+	ok(Animal.v5==5);
+	
+	sue.v5 = 502;
+	ok(bob.v5==502);
+	ok(bob._super.v5==50);
+	ok(bob._super._super.v5==5);
+	ok(sue.v5==502);
+	ok(sue._super.v5==50);
+	ok(sue._super._super.v5==5);
+	ok(Person.v5==502);
+	ok(Mammal.v5==50);
+	ok(Animal.v5==5);
+	
+	Person.v5 = 503;
+	ok(bob.v5==503);
+	ok(bob._super.v5==50);
+	ok(bob._super._super.v5==5);
+	ok(sue.v5==503);
+	ok(sue._super.v5==50);
+	ok(sue._super._super.v5==5);
+	ok(Person.v5==503);
+	ok(Mammal.v5==50);
+	ok(Animal.v5==5);
+	
+	bob._super.v5 = 51;
+	ok(bob.v5==503);
+	ok(bob._super.v5==51);
+	ok(bob._super._super.v5==5);
+	ok(sue.v5==503);
+	ok(sue._super.v5==51);
+	ok(sue._super._super.v5==5);
+	ok(Person.v5==503);
+	ok(Mammal.v5==51);
+	ok(Animal.v5==5);
+	
+	sue._super.v5 = 52;
+	ok(bob.v5==503);
+	ok(bob._super.v5==52);
+	ok(bob._super._super.v5==5);
+	ok(sue.v5==503);
+	ok(sue._super.v5==52);
+	ok(sue._super._super.v5==5);
+	ok(Person.v5==503);
+	ok(Mammal.v5==52);
+	ok(Animal.v5==5);
+	
+	Mammal.v5 = 53;
+	ok(bob.v5==503);
+	ok(bob._super.v5==53);
+	ok(bob._super._super.v5==5);
+	ok(sue.v5==503);
+	ok(sue._super.v5==53);
+	ok(sue._super._super.v5==5);
+	ok(Person.v5==503);
+	ok(Mammal.v5==53);
+	ok(Animal.v5==5);
+	
+	bob._super._super.v5 = 6;
+	ok(bob.v5==503);
+	ok(bob._super.v5==53);
+	ok(bob._super._super.v5==6);
+	ok(sue.v5==503);
+	ok(sue._super.v5==53);
+	ok(sue._super._super.v5==6);
+	ok(Person.v5==503);
+	ok(Mammal.v5==53);
+	ok(Animal.v5==6);
+
+	sue._super._super.v5 = 7;
+	ok(bob.v5==503);
+	ok(bob._super.v5==53);
+	ok(bob._super._super.v5==7);
+	ok(sue.v5==503);
+	ok(sue._super.v5==53);
+	ok(sue._super._super.v5==7);
+	ok(Person.v5==503);
+	ok(Mammal.v5==53);
+	ok(Animal.v5==7);
+
+	Animal.v5 = 8;
+	ok(bob.v5==503);
+	ok(bob._super.v5==53);
+	ok(bob._super._super.v5==8);
+	ok(sue.v5==503);
+	ok(sue._super.v5==53);
+	ok(sue._super._super.v5==8);
+	ok(Person.v5==503);
+	ok(Mammal.v5==53);
+	ok(Animal.v5==8);	
+	
+	bob.setV5(504);
+	ok(bob.v5==504);
+	ok(bob._super.v5==53);
+	ok(bob._super._super.v5==8);
+	ok(sue.v5==504);
+	ok(sue._super.v5==53);
+	ok(sue._super._super.v5==8);
+	ok(Person.v5==504);
+	ok(Mammal.v5==53);
+	ok(Animal.v5==8);
 	
 });
 
 
 
+
 test("Override Methods",function(){
 	
-	ok(true);
+	var Animal = jfork.Class({		
+		m1:function(){
+			return 1;
+		},
+		m2:function(){
+			return 2;
+		},
+		m3:function(){
+			return 3;
+		},
+		"static m4":function(){
+			return 4;
+		},
+		"static m5":function(){
+			return 5;
+		},
+		"static m6":function(){
+			return 6;
+		}		
+	});
 	
+	var Mammal = Animal.extend({
+		m1:function(){
+			return 10;
+		},
+		m2:function(){
+			return 20;
+		},
+		"static m4":function(){
+			return 40;
+		},
+		"static m5":function(){
+			return 50;
+		},
+		m7:function(){
+			return 70;
+		},
+		"static m8":function(){
+			return 80;
+		}
+	});
+	
+	var Person = Mammal.extend({
+		m1:function(){
+			return 100;
+		},
+		m3:function(){
+			return 300;
+		},
+		"static m4":function(){
+			return 400;
+		},
+		"static m6":function(){
+			return 600;
+		},
+		m7:function(){
+			return 700;
+		},
+		"static m8":function(){
+			return 800;
+		}
+	});
+	
+	var ant = Animal();	
+	var dog = Mammal();	
+	var bob = Person();
+
+	ok(bob.m1()==100);
+	ok(bob._super.m1()==10);
+	ok(bob._super._super.m1()==1);
+	
+	ok(bob.m2()==20);
+	ok(bob._super.m2()==20);
+	ok(bob._super._super.m2()==2);
+
+	ok(bob.m3()==300);
+	ok(bob._super.m3()==3);
+	ok(bob._super._super.m3()==3);
+	
+	ok(bob.m4()==400);
+	ok(bob._super.m4()==40);
+	ok(bob._super._super.m4()==4);
+	ok(Person.m4()==400);
+	ok(Mammal.m4()==40);
+	ok(Animal.m4()==4);
+	ok(dog.m4()==40);
+
+	ok(bob.m5()==50);
+	ok(bob._super.m5()==50);
+	ok(bob._super._super.m5()==5);
+	ok(Person.m5()==50);
+	ok(Mammal.m5()==50);
+	ok(Animal.m5()==5);
+	ok(dog.m5()==50);
+	
+	ok(bob.m6()==600);
+	ok(bob._super.m6()==6);
+	ok(bob._super._super.m6()==6);
+	ok(Person.m6()==600);
+	ok(Mammal.m6()==6);
+	ok(Animal.m6()==6);
+	ok(dog.m6()==6);
+	ok(ant.m6()==6);
+
 });
 
 
 
 test("Constructors",function(){
 	
+	var Animal = jfork.Class({
+		a:"a",
+		"static b":"b",
+		c:"c",
+		"construct()":function(){
+			this.a = this.a + "b";
+			this.b = this.b + "c";
+			this.c = this.c + "d";
+		},
+		"construct(a,b,c)":function(a,b,c){
+			this.a = this.a + a;
+			this.b = this.b + b;
+			this.c = this.c + c;
+		},
+		"construct(v)":function(v){
+			this.a = this.a + v;
+			this.b = this.b + v;
+			this.c = this.c + v;
+		}
+	});
+	
+	var Mammal = Animal.extend({
+		"construct()":function(){
+			this.a = this.a + "c";
+			this.b = this.b + "d";
+			this.c = this.c + "e";
+		},
+		"construct(a,b,c)":function(a,b,c){
+			this.a = this.a + 1;
+			this.b = this.b + 2;
+			this.c = this.c + 3;
+		},
+		"construct(String v)":function(v){
+			this.a = this.a + v;
+			this.b = this.b + v;
+			this.c = this.c + v;
+		},
+		"construct(Integer v)":function(v){
+			this.a = this.a + (v+1);
+			this.b = this.b + (v+1);
+			this.c = this.c + (v+1);
+		}
+	});
+	
+	var Person = Mammal.extend({
+		"construct()":function(){
+			this.a = this.a + "d";
+			this.b = this.b + "e";
+			this.c = this.c + "f";
+		},
+		"construct(a,b,c)":function(a,b,c){
+			this.a = this.a + a;
+			this.b = this.b + b;
+			this.c = this.c + c;
+		}
+	});
+	
+	var bob = Person();
+	ok(bob.a=="abcd");
+	ok(bob.b=="bcde");
+	ok(bob.c=="cdef");
+	
+	var sue = Person("x","y","z");
+	ok(sue.a=="ax1x");
+	ok(sue.b=="bcdey2y");
+	ok(sue.c=="cz3z");
+	ok(Animal.b=="bcdey2y");
+	ok(Person.b=="bcdey2y");
+	
+	throws(function(){
+		Person("asdf");
+	});
+	
+	var dog = Mammal(123);
+	ok(dog.a=="a123124");
+	ok(dog.b=="bcdey2yasdfasdf123124");
+	ok(dog.c=="c123124");
+	
+});
+
+
+
+
+
+
+
+
+module("Add Custom Types");
+
+test("Basic",function(){
+	
+	jfork.addTypeCheck("Animal",function(o){ 
+		return (o && o.isAnimal) ? true : false; 
+	});
+	
+	var Animal = jfork.Class({
+		"static isAnimal":true,
+		type:null,
+		"construct(type)":function(type){
+			this.type = type;
+		}
+	});
+
+	var Jungle = jfork.Class({
+		"Animal a":null,
+		"construct(Animal a)":function(a){
+			this.a = a;
+		},
+		"setAnimal({Animal a})":function(o){
+			this.a = o.a;
+		},
+		"Animal getAnimal()":function(){
+			return this.a;
+		}
+	});
+	
+	var bear = Animal("bear");
+	var cat = Animal("cat");
+	
+	var amazon = Jungle(bear);
+	
+	ok(amazon.a.type=="bear");
+	ok(amazon.getAnimal().type=="bear");
+	
+	amazon.setAnimal({a:cat});
+	ok(amazon.a.type=="cat");
+	ok(amazon.getAnimal().type=="cat");
+	
+	throws(function(){
+		Jungle({});
+	});
+	
+});
+
+
+
+
+
+
+module("Define");
+
+test("Static Define",function(){
+	
 	ok(true);
 	
 });
 
 
-/*
 
-
-module("Add Custom Types");
-
-
-
-
-
-
-module("Complex Tests");
+test("Dynamic Define",function(){
+	
+	ok(true);
+	
+});
 
 
 
-*/
+
+
+module("Alias");
+
+test("Alias Variables",function(){
+	
+	ok(true);
+	
+});
+
+
+
+test("Alias Methods",function(){
+	
+	ok(true);
+	
+});
+
+
   
 </script>
 </body>

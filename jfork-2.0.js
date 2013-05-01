@@ -97,8 +97,6 @@ jfork.addTypeCheck("Variant",function(o){
 });
 
 
-//String[], Integer[]
-
 
 
 
@@ -156,52 +154,8 @@ var observe = function(obj,name,_getter,_setter){
         return value;
     };
  
-    // Modern browsers, IE9+, and IE8 (must be a DOM object),
-    if (Object.defineProperty) { 
-        Object.defineProperty(obj, name, {get:getter, set:setter});
- 
-    // Older Mozilla
-    } else if (obj.__defineGetter__) { 
-        obj.__defineGetter__(name, getter);
-        obj.__defineSetter__(name, setter);
- 
-    // IE6-7
-    // must be a real DOM object (to have attachEvent) and must be attached to document (for onpropertychange to fire)
-    } else {
-        var onPropertyChange = function (e) { 
-            if (event.propertyName == name) {
-                obj.detachEvent("onpropertychange", onPropertyChange); 
-                var newValue = setter(obj[name]);
-                obj[name] = getter;
-                obj[name].toString = getter;
-                obj.attachEvent("onpropertychange", onPropertyChange);
-            }
-        };  
-        obj[name] = getter;
-        obj[name].toString = getter; 
-        obj.attachEvent("onpropertychange", onPropertyChange);
-    }
+    Object.defineProperty(obj, name, {get:getter, set:setter, configurable:true});
 };
-
-observe.create = (function(){
-	if(ie < 8){
-		var parent = document.createElement("Observables");
-		document.appendChild(parent);
-		return function(){
-			var o = document.createElement("Observable");
-			parent.appendChild(o);
-			return o;
-		};
-	} else if(ie == 8){
-		return function(){
-			return document.createElement("Observable");
-		};
-	} else {
-		return function(){
-			return {};
-		};
-	}
-})();
 
 
 
@@ -772,7 +726,7 @@ jfork.Class = function(defaultSignature,extend){
 			applyStaticExtend(curExtend.extend);
 		}
 		jfork.each(curExtend.signature.methods,function(i,v){
-			if(v.isStatic && !clazz.signature.methods[i]){
+			if(v.variations[0].isStatic && !clazz.signature.methods[i]){
 				clazz.staticMapping.methods[i] = curExtend.staticMapping.methods[i];
 				var contexts = [clazz.privateStatic];
 				if(!v.isPrivate){
@@ -783,7 +737,6 @@ jfork.Class = function(defaultSignature,extend){
 		});
 		jfork.each(curExtend.signature.variables,function(i,v){
 			if(v.isStatic && !clazz.signature.variables[i]){
-				console.log(i);
 				clazz.staticMapping.variables[i] = curExtend.staticMapping.variables[i];
 				var contexts = [clazz.privateStatic];
 				if(!v.isPrivate){
@@ -801,12 +754,18 @@ jfork.Class = function(defaultSignature,extend){
 
 
 //jfork.Class Options
-jfork.Class.throwErrors = true;
 jfork.Class.error = function(msg){
-	if(jfork.Class.throwErrors){
-		throw new Error(msg);
-	}
+	throw new Error(msg);
 };
+
+
+//Helpers - each, bind, addTypeCheck, load, 
+//Default Classes - AJAX, API, DAO, Group, Widget, 
+//Extra Classes - Timer, Data (prettyTime), Color, Animation, Canvas, Image, Sound
+
+
+
+
 
 
 
@@ -820,6 +779,14 @@ window.jfork = jfork;
 
 
 /*
+ *
+
+  DOCUMENTATION
+  - Show argument types
+  - Common Patterns using JFork
+  - Talk about speed - http://jsperf.com/getter-setter/8
+
+
 
   Must Haves
   - No Conflict
