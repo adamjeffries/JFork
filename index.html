@@ -1,57 +1,326 @@
 <html>
 <head>
+	<title>JFork - Object Oriented Framework</title>
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700' rel='stylesheet' type='text/css'>
-	<link href='main.css' rel='stylesheet' type='text/css'>
-	<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+	<link href='styles/main.css' rel='stylesheet' type='text/css'>
+	<script type="text/javascript" src="scripts/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="scripts/shCore.js"></script>
+	<script type="text/javascript" src="scripts/shBrushJScript.js"></script>
+	<link type="text/css" rel="stylesheet" href="styles/shCoreRDark.css"/>   <!-- shCoreRDark.css -->
+	<script type="text/javascript">SyntaxHighlighter.all();</script>
+	<script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-19180315-14']);
+	  _gaq.push(['_trackPageview']);
+	
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();	
+	</script>
 </head>
 <body>
 <div id="main">
-	<div id="header">
-		<div id="logo"><img src="images/logo.png" /></div>	
+
+<div id="header">
+	<div id="logo"><img src="images/logo.png" /></div>
+	<div id="titleMenu">
+		<a href="https://github.com/JeffriesCo/JFork" target="_blank">View Source and Submit Bugs on GitHub</a>
 	</div>
+	<div id="mainMenu">
+		<a href="./jfork-2.0.min.js" target="_blank">Download</a>
+		<a href="#examples">Examples</a>
+		<a href="#documentation">Documentation</a>
+		<a href="#compatibility">Compatibility</a>
+	</div>
+</div>
+
+<h1>What is this?</h1>
+
+
+<p><b>A JavaScript Object Oriented Framework.</b></p>
+
+<p>This framework was developed to bring back structure to JavaScript, without destroying the flexibility we have come to enjoy.  It does this through a Class/Method relationship much like in Classical Object Oriented Notation.  However, jfork allows for much greater flexibility in its implementation of OO, so it will not ruin the power of JavaScript.</p>
+<!-- 
+<p>Lightweight</p>
+<p>JavaScript is a double edged sword.  On one hand it provides immense flexibility and with that flexibility a developer has tons of power.  However when working on larger projects or with multiple developers this flexibility can become dangerous and intrusive.</p>
+ -->
+
+
+
+
+<h1>What does it look like?</h1>
+
+<pre class="brush: js; gutter: false;">
+var Animal = jfork({
+
+	'String type':null,
+
+	'construct(String type)':function(type){
+		this.type = null;
+	},
 	
-	<h1>What is this?</h1>
+	'public String getType()':function(){
+		return this.type;
+	}
+
+});
+</pre>
+
+
+
+<h1>How can I use it?</h1>
+
+<p><a href="./jfork-2.0.min.js" target="_blank">Download</a> and include the jfork script file on your site before you start using it.  </p>
+<pre class="brush: js; gutter: false;">
+
+&lt;script type="text/javascript" src="yourdomain.com/scripts/jfork.js"></script>
+ 
+</pre>
+<p>Note: jfork does not use the DOM.  Therefore it can be used before the page has finished loading.</p>
+
+
+
+<h1>How does it work?</h1>
+
+<p>jfork works by reassigning the context of methods and variables to create difference scopes.  There are 4 primary scopes: Private Static, Public Static, Private Instance, and Public Instance.  </p>
+<pre class="brush: js; gutter: false;">
+var Person = jfork({
 	
-	<h1>What does it look like?</h1>
+	'private static hairColor':'black',
 	
-	<h1>How can I use it?</h1>
+	'public static numberOfFeet':2,
 	
-	<h1>How does it work?</h1>
+	'private lastName':'Doe',
 	
-	<h1>Documentation</h1>
+	'public firstName':'John'
+
+});
+</pre>
+
+
+
+
+<h1>Documentation</h1>
+
+
+<h2>Introduction</h2>
+<p>jfork if a full fledged object oriented framework offering: type checking, method overloading, inheritance, private and public scopes, static methods and variables, and constructors.  The jfork function basically behaves as a Class definer.</p>
+<ul>
+	<li>Constructors</li>
+	<li>Variables</li>
+	<li>Methods</li>
+</ul>
+
+<h3>asdfasdf</h3>
+
+<table>
+	<tr>
+		<td>this is the text</td>
+		<td>Here is more text</td>
+	</tr>
+	<tr>
+		<td>this is the text</td>
+		<td>Here is more text</td>
+	</tr>
+	<tr>
+		<td>this is the text</td>
+		<td>Here is more text</td>
+	</tr>
+	<tr>
+		<td>this is the text</td>
+		<td>Here is more text</td>
+	</tr>
+</table>
+
+<pre class="brush: js; gutter: false;">
+var myClass = jfork({
+
+	"method or variable definition":"value or function"
+
+});
+</pre>
+
+
+
+
+<h2>No Conflict</h2>
+<p>A good practice when using JavaScript is to prevent multiple objects from sitting on the window.  Therefore you can eliminate window.jfork and place jfork onto your own library using the noConflict method.</p>
+<pre class="brush: js; gutter: false; highlight: [3]">
+var myLibrary = {};  //Standard JS library such as jQuery
+
+myLibrary.Class = jfork.noConflict();
+
+//This is normally easier to read
+var Shoes = myLibrary.Class({
+	//jfork Class syntax goes here
+});
+</pre>
+
+
+
+
+<h2>Syntax Shorthand</h2>
+
+
+<h2>Class Definition</h2>
+
+
+<h2>Naming Conventions</h2>
+
+
+<h2>Data Types</h2>
+<p>jfork comes with multiple commonly used data types, however any data type can be add.  These data types are useful in the following ways: <b>variable types, method return types, and method/constructor parameter types. </b></p>
+<pre class="brush: js; gutter: false;">
+jfork({
+
+	//Data typed variables
+	"Array myArray":[1,2,3],
+	
+	//Data types used on a constructor
+	"construct(String a, Integer b)":function(a,b){},
+	
+	//Return Type and Typed Parameters on a method
+	"Number convertToNumber(String numString)":function(){}	
+
+});
+</pre>
+
+<h3>jfork.is</h3>
+<p>Data types can be explicitly checked through <b>jfork.is["datatype"](value)</b>.</p>
+<pre class="brush: js; gutter: false;">
+jfork.is.String("hello world"); //returns true;
+
+jfork.is["Number"]("what up"); //returns false;
+</pre>
 	
 	
-		<h2>Syntax Introduction</h2>
+<h3>List of Default Data Types</h3>
+
+<table>
+	<tr><td><b>Number</b></td><td>Any real number.  This cannot be a String number like "123".</td></tr>
+	<tr><td><b>Function</b></td><td>A JavaScript function object like function(){}</td></tr>
+	<tr><td><b>NodeList</b></td><td>Dynamic Node Lists for example: document.getElementsByTagName("div")</td></tr>
+	<tr><td><b>Date</b></td><td>The Date Object: new Date();</td></tr>
+	<tr><td><b>Element</b></td><td>Any HTML Element: such as document.getElementById("id") or document.body</td></tr>
+	<tr><td><b>Array</b></td><td>An array object: [1,2,3] or new Array()</td></tr>
+	<tr><td><b>Object</b></td><td>An object: {a:1,b:"two"} or new Object() - this is a loose type check and may apply to many situations</td></tr>
+	<tr><td><b>String</b></td><td>Any String: "hello world" or "123" or new String("what up")</td></tr>
+	<tr><td><b>Boolean</b></td><td>This can be the value <i>true</i> or <i>false</i>.  Not "true" or "false" strings.</td></tr>
+	<tr><td><b>RegExp</b></td><td>A JavaScript Regular Expression obtained from using new RegExp()</td></tr>
+	<tr><td><b>Integer</b></td><td>All numbers which pass the Number type check and have no decimals.</td></tr>
+	<tr><td><b>Variant</b></td><td>Anything! All variables/methods/constructors have the option of being "typeless" which implies a Variant</td></tr>
+</table>
+
+<h3>Data Types as Arrays</h3>
+<p>Any data type can be converted to be an Array of that data type by appending "[]" to the end of the type.  For example "String[]" represents an array of Strings now.  This can be applied in all situations of variables, methods, and constructors.</p>
+<pre class="brush: js; gutter: false;">
+var Phone = jfork({
+
+	"private Integer[] digits":null,
 	
+	"construct(Integer[] digits)":function(digits){
+		this.nums = digits;
+	},
 	
-		<h2>Class Definition</h2>
-		
-		
-		<h2>Naming Conventions</h2>
-		
-		
-		<h2>Data Types</h2>
-		
-			<h3>Adding Custom Data Types</h3>
-		
-		
-		<h2>Inheritance</h2>
-		
-		
-		<h2>Overloading</h2>
-		
-			First Come first served
-		
-		
-		<h2>Performance</h2>
-		
-		
-		<h2>Implementing Common Patterns</h2>
-		
-			<h3>Singleton</h3>
-			
-			<h3>Factory</h3>
-		
+	"public Integer[] getDigits()":function(){
+		return this.nums;
+	},
+	
+	"public addDigits(Integer[] digits)":function(digits){
+		this.nums = this.nums.concat(digits);
+	}
+
+});
+
+var tollfree = Phone([1,8,0,0]);
+
+tollfree.addDigits([8,8,8]);
+
+tollfree.getDigits(); //Returns [1,8,0,0,8,8,8];
+
+</pre>
+
+<h3>Parameters as an Object</h3>
+<p>A common practice in JavaScript is to pass an object around which contains the parameters a method needs.  This fact was not overlooked.  To pass parameters to a method as an object, wrap "{ }" around all the parameters notation.</p>
+<pre class="brush: js; gutter: false;">
+var Person = jfork({
+
+	fullname:"",
+	
+	"construct({String first, String last})":function(params){
+		this.setName(params);
+	},
+
+	"setName({String first, String last})":function(params){
+		this.fullname = params.first + " " + params.last;
+	}
+	
+});
+
+
+var bob = Person({first:"Bob", lastname:"Smith"});
+
+console.log(bob.fullname); //Returns "Bob Smith";
+
+</pre>
+
+
+<h3>Adding Custom Data Types</h3>
+<p>Custom data types can be added to jfork to be used as return types and parameter types.  They should be used whenever possible to increase clarity in your code.  When overloading a method or constructor, if a custom data type is in conflict with another data type, the first method or constructor defined will be used.</p>
+<pre class="brush: js; gutter: false;">
+// Define Even Integer Type Check
+jfork.addTypeCheck("Even",function(o){
+	return (o && jfork.is.Integer(o) && o%2==0) ? true : false;
+});
+
+// Create a Class and use the new type check
+var Integer = jfork({
+	"static isDivisible(Even v)":function(v){
+		return true;
+	},
+	"static isDivisible(Variant v)":function(v){
+		return false;
+	}
+});
+
+Integer.isDivisible(8); //Returns "true"
+
+Integer.isDivisible("hello world"); //Returns "false"
+
+Integer.isDivisible(3); //Returns "false"
+
+
+</pre>
+
+
+
+<h2>Inheritance</h2>
+
+
+<h2>Overloading</h2>
+
+	First Come first served
+
+
+<h2>Performance</h2>
+
+
+<h2>Throwing Exceptions</h2>
+
+
+<h2>Reserved Words</h2>
+
+
+<h1>Examples</h1>
+
+<h2>Singleton Pattern</h2>
+
+<h2>Factory Pattern</h2>
+
+<a name="compatibility"></a>
+<h1>Compatibility</h1>	
 	
 </div>
 <div id="footer"></div>
