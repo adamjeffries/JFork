@@ -13,13 +13,32 @@
 	
 //Check if supported
 if(!Object.defineProperty){
-	alert("jfork not supported");
+	throw new Error("jfork is not supported");
 	return;
 }
 	
-	
-	
-var jfork = {};
+
+//Setup jfork base object - default functionality is to use jfork.Class
+var jfork = function(){
+	return jfork.Class.apply(null,Array.prototype.slice.call(arguments));
+};
+
+//Save a copy of jfork before replacing it
+var _jfork = window.jfork;
+window.jfork = jfork;
+
+//Public noConflict
+jfork.noConflict = function(){	
+	window.jfork = _jfork;
+	return jfork;
+};
+
+//Public onError
+jfork.onError = function(msg){
+	throw new Error(msg);
+};
+
+
 
 
 
@@ -101,45 +120,10 @@ jfork.addTypeCheck("Variant",function(o){
 
 
 //Internal Helpers
-var ie = (function(){
-	var undef, v = 3, div = document.createElement('div'), all = div.getElementsByTagName('i');
-	while(div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->', all[0]){}
-	return v > 4 ? v : undef;
-}());
-
-var addEvent = function(elem,type,func){
-	if(elem.attachEvent){
-		elem['e'+type+func] = func;
-		elem[type+func] = function(){elem['e'+type+func]( window.event );};
-		elem.attachEvent( 'on'+type, elem[type+func] );
-	} else {
-		elem.addEventListener(type,func,false);
-	}
-};
-
 var bind = function(func,context){
 	return function(){
 		return func.apply(context,Array.prototype.slice.call(arguments));
 	};
-};
-
-var parseJSON = function(jsonString){
-	if(!jfork.isString(jsonString)){ return null; }
-	
-	var rvalidchars = /^[\],:{}\s]*$/;
-	var rvalidescape = /\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g;
-	var rvalidtokens = /"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g;
-	var rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g;
-	
-	jsonString = jsonString.replace(/^\s+|\s+$/g,"");
-	
-	if(window.JSON && window.JSON.parse){
-		return window.JSON.parse( jsonString );
-	} else if(rvalidchars.test(jsonString.replace(rvalidescape,"@").replace(rvalidtokens,"]").replace(rvalidbraces,""))){
-		return ( new Function( "return " + jsonString ) )();
-	} else {
-		throw new Error("Cannot Parse JSON String.");
-	}
 };
 
 
@@ -158,20 +142,7 @@ var observe = function(obj,name,_getter,_setter){
 };
 
 
-
-var getRandomString = function(len){
-	var str = "";
-	var keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	for(var i=0; i<len; i++){
-		str += keys.charAt(Math.floor(Math.random() * keys.length));
-	}			
-	return str;
-};
-
-
-
-//External Helpers
-jfork.each = function(o,func){
+var foreach = function(o,func){
 	if(!o){
 		return;
 	} else if(o.constructor == Array){
@@ -197,7 +168,7 @@ jfork.each = function(o,func){
 
 
 
-
+//JFork Class and Base
 jfork.Class = function(defaultSignature,extend){
 	
 	//Storage Structure
@@ -221,7 +192,7 @@ jfork.Class = function(defaultSignature,extend){
 	//Bind Method
 	var bindMethod = function(signature,applyTo,contexts){
 		var func = bind(signature.value,applyTo);
-		jfork.each(contexts,function(i,v){
+		foreach(contexts,function(i,v){
 			v[signature.variations[0].name] = func;
 		});
 	};
@@ -238,22 +209,22 @@ jfork.Class = function(defaultSignature,extend){
 			setter = function(newValue){
 				if(signature.isTypeArray){
 					if(!jfork.is.Array(newValue)){
-						jfork.Class.error(signature.name + ": is the wrong type.  Expected a " + signature.type + "[]");
+						jfork.onError(signature.name + ": is the wrong type.  Expected a " + signature.type + "[]");
 					}
 					for(var i=0; i<newValue.length; i++){
 						if(!jfork.is[signature.type](newValue[i])){
-							jfork.Class.error(signature.name + ": is the wrong type.  Expected a " + signature.type + "[]");
+							jfork.onError(signature.name + ": is the wrong type.  Expected a " + signature.type + "[]");
 						}
 					}
 				} else {
 					if(!jfork.is[signature.type](newValue)){
-						jfork.Class.error(signature.name + ": is the wrong type.  Expected a " + signature.type);
+						jfork.onError(signature.name + ": is the wrong type.  Expected a " + signature.type);
 					}
 				}				
 				storage[signature.name] = newValue;
 			};
 		}
-		jfork.each(contexts,function(i,v){
+		foreach(contexts,function(i,v){
 			observe(v,signature.name,getter,setter);			
 		});
 	};
@@ -331,25 +302,32 @@ jfork.Class = function(defaultSignature,extend){
 				funcA = function(){
 					var args = Array.prototype.slice.call(arguments);
 					if(!checkParams(args,variations[0])){
-						jfork.Class.error(variations[0].name + ": parameters passed do not match method signature");
+						jfork.onError(variations[0].name + ": parameters passed do not match method signature");
 					}
 					return variations[0].value.apply(this,args);
 				};
-			}			
-			if(variations[0].type){
+			}
+			if(variations[0].isVoid){
+				return function(){
+					var rtnval = funcA.apply(this,Array.prototype.slice.call(arguments));
+					if(rtnval !== undefined){
+						jfork.onError(variations[0].name + ": is defined as void and cannot return a value.");		
+					}
+				};
+			} else if(variations[0].type){
 				return function(){
 					var rtnval = funcA.apply(this,Array.prototype.slice.call(arguments));
 					if(variations[0].isTypeArray){
 						if(!jfork.is.Array(rtnval)){
-							jfork.Class.error(variations[0].name + ": must return type " + variations[0].type + "[]");
+							jfork.onError(variations[0].name + ": must return type " + variations[0].type + "[]");
 						}
 						for(var i=0; i<rtnval.length; i++){
 							if(!jfork.is[variations[0].type](rtnval[i])){
-								jfork.Class.error(variations[0].name + ": must return type " + variations[0].type + "[]");
+								jfork.onError(variations[0].name + ": must return type " + variations[0].type + "[]");
 							}
 						}
 					} else if(!jfork.is[variations[0].type](rtnval)){
-						jfork.Class.error(variations[0].name + ": must return type " + variations[0].type);						
+						jfork.onError(variations[0].name + ": must return type " + variations[0].type);						
 					}
 					return rtnval;
 				};
@@ -361,30 +339,34 @@ jfork.Class = function(defaultSignature,extend){
 		} else {
 			return function(){
 				var args = Array.prototype.slice.call(arguments);
-				var validvariationsIndex = jfork.each(variations,function(i,v){
+				var validvariationsIndex = foreach(variations,function(i,v){
 					if(checkParams(args,v)){
 						return i;
 					}
 				});
 				if(!validvariationsIndex===undefined){
-					jfork.Class.error(variations[validvariationsIndex].name + ": parameters passed do not match method signature");
+					jfork.onError(variations[validvariationsIndex].name + ": parameters passed do not match method signature");
 				}
 				var rtnval = variations[validvariationsIndex].value.apply(this,args);
-				if(variations[validvariationsIndex].type){
+				if(variations[validvariationsIndex].isVoid){
+					if(rtnval !== undefined){
+						jfork.onError(variations[validvariationsIndex].name + ": is defined as void and cannot return a value.");		
+					}
+				} else if(variations[validvariationsIndex].type){
 					if(variations[validvariationsIndex].isTypeArray){
 						if(!jfork.is.Array(rtnval)){
-							jfork.Class.error(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type + "[]");
+							jfork.onError(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type + "[]");
 						}
 						for(var i=0; i<rtnval.length; i++){
 							if(!jfork.is[variations[validvariationsIndex].type](rtnval[i])){
-								jfork.Class.error(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type + "[]");
+								jfork.onError(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type + "[]");
 							}
 						}
 						
 					} else if(!jfork.is[variations[validvariationsIndex].type](rtnval)){
-						jfork.Class.error(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type);
+						jfork.onError(variations[validvariationsIndex].name + ": must return type " + variations[validvariationsIndex].type);
 					}
-				}		
+				}
 				return rtnval;
 			};
 		}
@@ -407,8 +389,9 @@ jfork.Class = function(defaultSignature,extend){
 			isTypeArray:false,
 			isParamObject:false,
 			params:null,
-			isPrivate:(def.indexOf("private") > -1) ? true : false,
-			isStatic:(def.indexOf("static") > -1) ? true : false,
+			isPrivate:(def.indexOf("private ") > -1) ? true : false,
+			isStatic:(def.indexOf("static ") > -1) ? true : false,
+			isVoid:(def.indexOf("void ") > -1) ? true : false,
 			value:value
 		};
 		
@@ -422,6 +405,9 @@ jfork.Class = function(defaultSignature,extend){
 			if(jfork.hasTypeCheck(possibleType)){
 				sig.isTypeArray = isTypeArray;
 				sig.type = possibleType;
+				if(sig.isVoid){
+					jfork.onError(sig.name + ": cannot be both void and return a data type");
+				}
 			}
 		}
 		
@@ -432,7 +418,7 @@ jfork.Class = function(defaultSignature,extend){
 			paramsString = paramsString.replace("{","").replace("}","");			
 			var paramsSplit = paramsString.split(",");
 			if(paramsSplit.length > 1 || (paramsSplit.length==1 && paramsSplit[0] !="")){
-				jfork.each(paramsSplit,function(i,v){
+				foreach(paramsSplit,function(i,v){
 					v = v.replace(/^\s+|\s+$/g, '');
 					var paramSplit = v.split(" ");
 					var param = {name:paramSplit[paramSplit.length-1],type:"Variant",isArray:false};
@@ -449,9 +435,9 @@ jfork.Class = function(defaultSignature,extend){
 				});
 				//Check for duplicate parameter names
 				var paramDuplicates = {};
-				jfork.each(sig.params,function(i,v){
+				foreach(sig.params,function(i,v){
 					if(paramDuplicates[v.name]){
-						jfork.Class.error(sig.name + ": cannot have two parameters with the same name (" + v.name + ")");
+						jfork.onError(sig.name + ": cannot have two parameters with the same name (" + v.name + ")");
 					}
 					paramDuplicates[v.name] = true;
 				});
@@ -502,22 +488,72 @@ jfork.Class = function(defaultSignature,extend){
 		clazz.instances.push(instance);
 
 		
-		
+		//Extra methods defined after the instance has been created - want to keep separate from default signature
+		var definedMethodVariations = {}; //{name:variationsArray}
 		
 		//Instance Define
 		instance.publicDynamic.define = function(a,b){			
 			if(jfork.is.Object(a)){
-				jfork.each(a,function(i,v){
+				foreach(a,function(i,v){
 					instance.publicDynamic.define(i,v);
 				});
 				return instance.publicDynamic;
 			}
+			var signature = buildSignature(a,b);
 			
+			//Variable
+			if(!jfork.is.Function(signature.value)){
+				instance.storage[signature.name] = signature.value;
+				
+				var contexts = [instance.privateDynamic];
+				if(!signature.isPrivate){
+					contexts.push(instance.publicDynamic);
+				}
+				//Doesn't matter if static - because it only applies to this instance
+				bindVariable(signature,instance.storage,contexts);
+				
+			//Constructor
+			} else if(signature.name == "construct") {
+				//Ignore - can be set on Classes only
 			
-			
-			
+			//Method
+			} else {
+				var variations = [];
+				if(clazz.signature.methods[signature.name]){
+					variations = variations.concat(clazz.signature.methods[signature.name].variations);
+				}
+				if(definedMethodVariations[signature.name]){
+					variations = variations.concat(definedMethodVariations[signature.name]);
+				} else {
+					definedMethodVariations[signature.name] = [];
+				}
+				if(variations.length > 1){
+					var isDuplicate = foreach(variations,function(i,v){
+						if(areParamsEqual(signature,v)){
+							return true;
+						}
+					});
+					if(isDuplicate){
+						jfork.onError(signature.name + ": Cannot create two methods with the same signatures.");
+					}
+				}
+				
+				definedMethodVariations[signature.name].push(signature);
+				
+				var value = buildMethod(variations.concat([signature]));
+					
+				var contexts = [instance.privateDynamic];
+				if(!signature.isPrivate){
+					contexts.push(instance.publicDynamic);
+				}
+				
+				//Doesn't matter if static - because it only applies to this instance
+				bindMethod({value:value,variations:definedMethodVariations[signature.name]},instance.privateDynamic,contexts);
+			}	
+
 			return instance.publicDynamic;
-		};
+		};//End define
+		
 		
 		//Run extended constructor and bind its methods and variables
 		if(clazz.extend){			
@@ -529,7 +565,7 @@ jfork.Class = function(defaultSignature,extend){
 				} else if(curExtend.extend){
 					applyExtend(curExtend.extend);
 				}
-				jfork.each(curExtend.signature.methods,function(i,v){
+				foreach(curExtend.signature.methods,function(i,v){
 					if(!clazz.signature.methods[i]){
 						var contexts = [instance.privateDynamic];
 						if(!v.isPrivate){
@@ -542,7 +578,7 @@ jfork.Class = function(defaultSignature,extend){
 						bindMethod(v,applyTo,contexts);	
 					}
 				});
-				jfork.each(curExtend.signature.variables,function(i,v){
+				foreach(curExtend.signature.variables,function(i,v){
 					if(!clazz.signature.variables[i]){
 						var contexts = [instance.privateDynamic];
 						if(!v.isPrivate){
@@ -560,7 +596,7 @@ jfork.Class = function(defaultSignature,extend){
 		}
 				
 		//Bind Variables and Methods to Instance
-		jfork.each(clazz.signature.methods,function(i,v){
+		foreach(clazz.signature.methods,function(i,v){
 			var contexts = [instance.privateDynamic];
 			if(!v.variations[0].isPrivate){
 				contexts.push(instance.publicDynamic);
@@ -572,7 +608,7 @@ jfork.Class = function(defaultSignature,extend){
 			}
 			bindMethod(v,bindTo,contexts);	
 		});
-		jfork.each(clazz.signature.variables,function(i,v){
+		foreach(clazz.signature.variables,function(i,v){
 			var contexts = [instance.privateDynamic];
 			if(!v.isPrivate){
 				contexts.push(instance.publicDynamic);
@@ -587,14 +623,14 @@ jfork.Class = function(defaultSignature,extend){
 		});
 
 		//Run Local Constructor
-		var constructorFound = jfork.each(clazz.signature.constructors,function(i,v){
+		var constructorFound = foreach(clazz.signature.constructors,function(i,v){
 			if(checkParams(args,v)){
 				v.value.apply(instance.privateDynamic,args);
 				return true;
 			}
 		});
 		if(!constructorFound && (clazz.signature.constructors.length > 0 || (clazz.signature.constructors.length == 0 && args.length > 0))){
-			jfork.Class.error("No constructor found matching these parameters.");
+			jfork.onError("No constructor found matching these parameters.");
 		}
 
 		return instance.publicDynamic;
@@ -616,7 +652,7 @@ jfork.Class = function(defaultSignature,extend){
 	//Defines static and stores dynamic to defaultSignature - from static methods and Class
 	clazz.publicStatic.define = function(a,b){		
 		if(jfork.is.Object(a)){
-			jfork.each(a,function(i,v){
+			foreach(a,function(i,v){
 				clazz.publicStatic.define(i,v);
 			});
 			return clazz.publicStatic;
@@ -633,34 +669,18 @@ jfork.Class = function(defaultSignature,extend){
 				if(!signature.isPrivate){
 					contexts.push(clazz.publicStatic);
 				}
-				jfork.each(clazz.instances,function(i,v){
-					contexts.push(v.privateDynamic);
-					if(!signature.isPrivate){
-						contexts.push(v.publicDynamic);						
-					}
-				});
 				bindVariable(signature,clazz.storage,contexts);
-			} else {
-				jfork.each(clazz.instances,function(i,v){
-					v.storage[signature.name] = signature.value;
-					v.dynamicMapping.variables[signature.name] = v.storage;
-					var contexts = [v.privateDynamic];
-					if(!signature.isPrivate){
-						contexts.push(v.publicDynamic);	
-					}
-					bindVariable(signature,v.storage,contexts);
-				});
 			}
 			
 		//Constructor
 		} else if(signature.name == "construct") {
-			var isDuplicate = jfork.each(clazz.signature.constructors,function(i,v){
+			var isDuplicate = foreach(clazz.signature.constructors,function(i,v){
 				if(areParamsEqual(signature,v)){
 					return true;
 				}
 			});
 			if(isDuplicate){
-				jfork.Class.error("Cannot create two constructors with the same parameters.");
+				jfork.onError("Cannot create two constructors with the same parameters.");
 			}				
 			clazz.signature.constructors.push(signature);
 
@@ -670,13 +690,13 @@ jfork.Class = function(defaultSignature,extend){
 			if(!clazz.signature.methods[signature.name]){
 				clazz.signature.methods[signature.name] = {value:function(){},variations:[]};
 			} else {
-				var isDuplicate = jfork.each(clazz.signature.methods[signature.name].variations,function(i,v){
+				var isDuplicate = foreach(clazz.signature.methods[signature.name].variations,function(i,v){
 					if(areParamsEqual(signature,v)){
 						return true;
 					}
 				});
 				if(isDuplicate){
-					jfork.Class.error(signature.name + ": Cannot create two methods with the same signatures.");
+					jfork.onError(signature.name + ": Cannot create two methods with the same signatures.");
 				}
 			}
 			clazz.signature.methods[signature.name].variations.push(signature);
@@ -687,24 +707,8 @@ jfork.Class = function(defaultSignature,extend){
 				if(!signature.isPrivate){
 					contexts.push(clazz.publicStatic);
 				}
-				jfork.each(clazz.instances,function(i,v){
-					contexts.push(v.privateDynamic);
-					if(!signature.isPrivate){
-						contexts.push(v.publicDynamic);						
-					}
-				});
 				bindMethod(clazz.signature.methods[signature.name],clazz.privateStatic,contexts);			
-			} else {
-				jfork.each(clazz.instances,function(i,v){
-					v.dynamicMapping.methods[signature.name] = v.privateDynamic;
-					var contexts = [v.privateDynamic];
-					if(!signature.isPrivate){
-						contexts.push(v.publicDynamic);	
-					}
-					bindMethod(clazz.signature.methods[signature.name],v.privateDynamic,contexts);
-				});
-			}
-			
+			}			
 		}		
 		
 		return clazz.publicStatic;
@@ -725,7 +729,7 @@ jfork.Class = function(defaultSignature,extend){
 		} else if(curExtend.extend){
 			applyStaticExtend(curExtend.extend);
 		}
-		jfork.each(curExtend.signature.methods,function(i,v){
+		foreach(curExtend.signature.methods,function(i,v){
 			if(v.variations[0].isStatic && !clazz.signature.methods[i]){
 				clazz.staticMapping.methods[i] = curExtend.staticMapping.methods[i];
 				var contexts = [clazz.privateStatic];
@@ -735,7 +739,7 @@ jfork.Class = function(defaultSignature,extend){
 				bindMethod(v,clazz.staticMapping.methods[i],contexts);	
 			}
 		});
-		jfork.each(curExtend.signature.variables,function(i,v){
+		foreach(curExtend.signature.variables,function(i,v){
 			if(v.isStatic && !clazz.signature.variables[i]){
 				clazz.staticMapping.variables[i] = curExtend.staticMapping.variables[i];
 				var contexts = [clazz.privateStatic];
@@ -753,26 +757,11 @@ jfork.Class = function(defaultSignature,extend){
 };
 
 
-//jfork.Class Options
-jfork.Class.error = function(msg){
-	throw new Error(msg);
-};
-
 
 //Helpers - each, bind, addTypeCheck, load, 
-//Default Classes - AJAX, API, DAO, Group, Widget, 
-//Extra Classes - Timer, Data (prettyTime), Color, Animation, Canvas, Image, Sound
+//Classes - AJAX, API, DAO, Group, Widget, Timer, Data (prettyTime), Color, Animation, Canvas, Image, Sound
 
 
-
-
-
-
-
-
-var _jfork = window.jfork;
-window.jfork = jfork;
-	
 })(window);
 
 
@@ -785,6 +774,14 @@ window.jfork = jfork;
   - Show argument types
   - Common Patterns using JFork
   - Talk about speed - http://jsperf.com/getter-setter/8
+  - First come first served on similar type checks
+
+  JFork
+  
+  
+  JFork Library
+  
+  
 
 
 
@@ -813,84 +810,6 @@ window.jfork = jfork;
     - Need to be able to instantiate and extend immediately - examples needed...
     
     
-    //Everything works normally EXCEPT - if you want to support ie8 <= then cannot use static variables on Class Directly - example Animal.hasFur (Will be independent of all other contexts)
+    - Annotations...?  getters and setters, deprecate
     
-    
-    var lib = {};
-    lib.Animal = jfork.Class({
-        numLegs:4,
-        name:"",
-        construct:function(name){
-        	this.numLegs = 2;
-        	this.name = name;
-        },
-        getNumLegs:function(){
-        	return this.numLegs;
-        },
-        "setNumLegs(Integer num=4)":function(o){
-        	this.numLegs = o.num;
-        },
-        "setNumLegs({Integer num=4})":function(num){
-        	this.numLegs = num;
-        }
-    });
-  
-    lib.cat = Animal("Fluffy");
-    
-    //Extend and instantiate in a single step...
-    lib.dog = jfork.Class({
-    	extends:Animal,
-    	construct:function(){
-    		this._super();
-    	}
-    });
-    
-    //or
-    lib.dog = Animal({
-    
-    });
-    
-    //Can update or set a class at any time
-    Animal.define("defaultSetLegs",function(){
-    
-    });
-    
-    //Alias - changes the name from one to another - good for deprecations?
-    Animal.alias("name","newname");
-  
-  
-    //Instead of this - use o in the args...?
-    lib.Animal = jfork.Class({
-    	language:"english",
-    	speak:function(o){
-    		this.language = "french";
-    		return this.language;
-    		this == lib.Animal;
-    	}    
-    });
-    
-    //to get this() to work and not share data - we need to wrapper the class in a new function on creating the instance...  
-       However in static methods, we don't want unique so this has to be defined up front as itself....
-    
-  
-  
-  
-  
-  
-  - DAO
-    - equality
-    
-  - API
-  - GROUP
-  
-  
-  - Array
-    - every
-    - each
-    - filter
-    - map
-    - some
-
-
-
 */

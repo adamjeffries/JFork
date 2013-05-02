@@ -18,7 +18,7 @@ module("Basic Use Cases");
 
 
 test("instance independence", function() {
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		hasTeeth:false,
 		numLegs:4,
 		setNumLegs:function(numLegs){
@@ -57,7 +57,7 @@ module("Variables");
 
 test("public dynamic on instance", function() {
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		var1:"a",
 		"var2":"b",
 		"String var3":"c",
@@ -102,7 +102,7 @@ test("public dynamic on instance", function() {
 
 test("public dynamic through methods",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		var1:"a",
 		"var2":"b",
 		"String var3":"c",
@@ -148,7 +148,7 @@ test("public dynamic through methods",function(){
 
 test("private dynamic",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		"private var1":123,
 		"private Array var2":null,
 		"private String var3":"c",
@@ -212,7 +212,7 @@ test("private dynamic",function(){
 
 test("Static",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		var1:"a",
 		"static var2":"b",
 		"static String var3":"c",
@@ -288,7 +288,7 @@ test("Static",function(){
 
 test("Private Static",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		var1:"a",
 		"private static var2":"b",
 		"private static String var3":"c",
@@ -382,7 +382,7 @@ module("Methods");
 
 test("Argument Types",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		v1:null,
 		m1:					function(v){ this.v1 = v; },
 		"m2()":				function(){ this.v1 = "yep"; },
@@ -477,7 +477,7 @@ test("Argument Types",function(){
 		dog.m11({wrong:"hello"});
 	});
 	
-	dog.m12({a:123,b:"hello",c:"hmm"});
+	dog.m12({a:123,b:"hello",c:"hmm",d:"doesnt matter"});
 	ok(dog.v1=="123,hello,hmm");
 	throws(function(){
 		dog.m12({a:123,bbb:"hello",c:"hmm"});
@@ -496,7 +496,7 @@ test("Argument Types",function(){
 
 test("Return Types",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		m1:function(v){ return v; },
 		"m2(v)":function(v){ return v; },
 		"unknown m3(v)":function(v){ return v; },
@@ -504,7 +504,11 @@ test("Return Types",function(){
 		"String m5(v)":function(v){ return v; },
 		"Integer[] m6(v)":function(v){ return v; },
 		"Array m7(v)":function(v){ return v; },
-		"Object m8(v)":function(v){ return v; }
+		"Object m8(v)":function(v){ return v; },
+		"void m9(v)":function(v){ return v; },
+		"void m10()":function(){ return 1; },
+		"void m11()":function(){ return; },
+		"void m12()":function(){ /*Do nothing*/ }
 	});
 	
 	var dog = Animal();
@@ -550,6 +554,14 @@ test("Return Types",function(){
 	throws(function(){
 		dog.m8([]);
 	});
+	
+	ok(dog.m9(undefined)===undefined);
+	throws(function(){
+		dog.m9(1);
+	});
+	throws(function(){
+		dog.m9(null);
+	});
 });
 
 
@@ -561,48 +573,48 @@ test("Overloading",function(){
 	//Note: Two methods with exactly the same name will be overriden on any JS object by the newest
 	
 	throws(function(){
-		jfork.Class({
+		jfork({
 			m1:function(){},
 			"m1()":function(){}
 		});		
 	});
 
 	throws(function(){
-		jfork.Class({
+		jfork({
 			m1:function(){},
 			"m1(v)":function(){}
 		});		
 	});
 	
 	throws(function(){
-		jfork.Class({
+		jfork({
 			m1:function(){},
 			"m1(String v)":function(){}
 		});		
 	});
 	
 	throws(function(){
-		jfork.Class({
+		jfork({
 			"m1(v)":function(){},
 			"m1(String v)":function(){}
 		});		
 	});
 
 	throws(function(){
-		jfork.Class({
+		jfork({
 			"m1(unknown v)":function(){},
 			"m1(String v)":function(){}
 		});		
 	});	
 
 	throws(function(){
-		jfork.Class({
+		jfork({
 			"String m1(v)":function(){ return "a"; },
 			"Integer m1(v)":function(){ return 1; }
 		});		
 	});
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		"static m0(Integer a)":function(){
 			return 1;
 		},
@@ -653,7 +665,7 @@ test("Overloading",function(){
 
 test("Static",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		"static m1":function(){
 			return 1;
 		},
@@ -684,7 +696,7 @@ test("Static",function(){
 
 test("Private",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		"private m1":function(){
 			return 1;
 		},
@@ -726,7 +738,7 @@ test("Private",function(){
 
 test("Private Static",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		"private static m1":function(){
 			return 1;
 		},
@@ -784,7 +796,7 @@ module("Constructors");
 
 test("Basic", function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		v1:1,
 		"static v2":2,
 		"Integer v3":3,
@@ -823,7 +835,7 @@ test("Basic", function(){
 
 test("Argument Types", function(){
 	
-	var Animal1 = jfork.Class({
+	var Animal1 = jfork({
 		v:null,
 		"construct()":function(){
 			this.v = 1;
@@ -836,7 +848,7 @@ test("Argument Types", function(){
 	});
 	
 	
-	var Animal2 = jfork.Class({
+	var Animal2 = jfork({
 		v:null,
 		"construct(v)":function(v){
 			this.v = v;
@@ -852,7 +864,7 @@ test("Argument Types", function(){
 	});
 	
 	
-	var Animal3 = jfork.Class({
+	var Animal3 = jfork({
 		v:null,
 		"construct(String v)":function(v){
 			this.v = v;
@@ -868,7 +880,7 @@ test("Argument Types", function(){
 	});
 	
 	
-	var Animal4 = jfork.Class({
+	var Animal4 = jfork({
 		v:null,
 		"construct(a,b,c)":function(a,b,c){
 			this.v = a+b+c;
@@ -883,7 +895,7 @@ test("Argument Types", function(){
 		Animal4("a","b");
 	});
 	
-	var Animal5 = jfork.Class({
+	var Animal5 = jfork({
 		v:null,
 		"construct(String a,b)":function(a,b){
 			this.v = a+b;
@@ -899,7 +911,7 @@ test("Argument Types", function(){
 	});
 	
 	
-	var Animal6 = jfork.Class({
+	var Animal6 = jfork({
 		v:null,
 		"construct(Integer[] a)":function(a){
 			this.v = a.length;
@@ -917,7 +929,7 @@ test("Argument Types", function(){
 	});
 
 	
-	var Animal7 = jfork.Class({
+	var Animal7 = jfork({
 		v:null,
 		"construct({a,Integer b})":function(v){
 			this.v = v.a;
@@ -943,7 +955,7 @@ test("Argument Types", function(){
 
 test("Overloaded", function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		v:0,
 		"construct()":function(){
 			this.v=1;
@@ -979,14 +991,14 @@ test("Overloaded", function(){
 	
 	
 	throws(function(){
-		jfork.Class({
+		jfork({
 			construct:function(){},
 			"construct()":function(){}
 		});
 	});
 	
 	throws(function(){
-		jfork.Class({
+		jfork({
 			"construct(String a)":function(){},
 			"construct(a)":function(){}
 		});
@@ -998,7 +1010,7 @@ test("Overloaded", function(){
 
 test("Internal", function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		v:0,
 		"private static instance":null,
 		"construct()":function(){
@@ -1039,7 +1051,7 @@ module("Inheritance");
 
 test("instanceof", function(){
 	
-	var Animal = jfork.Class({});	
+	var Animal = jfork({});	
 	var Mammal = Animal.extend({});	
 	var Person = Mammal.extend({});
 	
@@ -1065,7 +1077,7 @@ test("instanceof", function(){
 
 test("Basic",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		"static v1":1,
 		v2:2,
 		"private v3":3,
@@ -1238,7 +1250,7 @@ test("Basic",function(){
 
 test("Override Variables",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		v1:1,
 		v2:2,
 		v3:3,
@@ -1531,7 +1543,7 @@ test("Override Variables",function(){
 
 test("Override Methods",function(){
 	
-	var Animal = jfork.Class({		
+	var Animal = jfork({		
 		m1:function(){
 			return 1;
 		},
@@ -1641,7 +1653,7 @@ test("Override Methods",function(){
 
 test("Constructors",function(){
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		a:"a",
 		"static b":"b",
 		c:"c",
@@ -1736,7 +1748,7 @@ test("Basic",function(){
 		return (o && o.isAnimal) ? true : false; 
 	});
 	
-	var Animal = jfork.Class({
+	var Animal = jfork({
 		"static isAnimal":true,
 		type:null,
 		"construct(type)":function(type){
@@ -1744,7 +1756,7 @@ test("Basic",function(){
 		}
 	});
 
-	var Jungle = jfork.Class({
+	var Jungle = jfork({
 		"Animal a":null,
 		"construct(Animal a)":function(a){
 			this.a = a;
@@ -1784,7 +1796,58 @@ module("Define");
 
 test("Static Define",function(){
 	
-	ok(true);
+	var Animal = jfork({
+		
+		"private static v1":1,
+		
+		"static getV1":function(){
+			return this.v1;
+		}
+		
+	});
+	
+	var dog = Animal();
+	
+	Animal.define("static v2",2);
+	
+	Animal.define({
+		"static getV2()":function(){
+			return this.v2;
+		},
+		"static setV1(v)":function(v){
+			this.v1 = v;
+		}
+	});
+	
+	var cat = Animal();
+	
+	ok(dog.v2==undefined);
+	ok(dog.getV1()==1);
+	throws(function(){
+		dog.getV2()==2;		
+	});
+	throws(function(){
+		dog.setV1("asdf");		
+	});
+	ok(dog.getV1()==1);	
+	
+	ok(Animal.getV1()==1);
+	ok(Animal.v2==2);
+	ok(Animal.getV2()==2);
+	Animal.setV1("hello");
+	ok(Animal.getV1()=="hello");
+	
+	Animal.v2 = 20;
+	ok(Animal.v2==20);
+	ok(Animal.getV2()==20);
+	ok(dog.v2==undefined);
+	ok(cat.v2==20);
+	ok(cat.getV2()==20);
+	
+	cat.v2 = "hmm";
+	cat.setV1("whatup");
+	ok(Animal.getV1()=="whatup");
+	ok(Animal.v2=="hmm");
 	
 });
 
@@ -1792,29 +1855,398 @@ test("Static Define",function(){
 
 test("Dynamic Define",function(){
 	
-	ok(true);
+	var Animal = jfork({		
+		"private v1":1,		
+		getV1:function(){
+			return this.v1;
+		}		
+	});
 	
+	var dog = Animal();
+	
+	dog.define("v2",2);
+	
+	dog.define({
+		"setV1":function(v){
+			this.v1 = v;
+		},
+		"getV2":function(){
+			return this.v2;
+		}
+	});
+	
+	dog.define("setV2(String v)",function(v){
+		this.v2 = v;
+	});
+	
+	ok(dog.v2==2);
+	ok(dog.getV2()==2);
+	ok(dog.getV1()==1);
+	
+	dog.v2=3;
+	ok(dog.v2==3);
+	ok(dog.getV2()==3);
+	
+	dog.setV1(123);
+	ok(dog.getV1()==123);
+	
+	dog.setV2("hello");
+	ok(dog.v2=="hello");
+	ok(dog.getV2()=="hello");
+	throws(function(){
+		dog.setV2(123);
+	});
+	
+	
+	
+	var cat = Animal();
+	
+	ok(cat.v2==undefined);
+	throws(function(){
+		cat.setV1(123);
+	});
+	throws(function(){
+		cat.getV2();
+	});
+	
+	ok(cat.getV1()==1);
+	
+});
+
+
+
+test("Overriding Variables via Define",function(){
+	
+	var Animal = jfork({
+		"static v1":1,
+		"static Integer v2":2,
+		"private static Integer v3":3,
+		v4:4,
+		"String v5":5,
+		"private String v6":6,
+		"static getV3()":function(){
+			return this.v3;
+		},
+		"getV6()":function(){
+			return this.v6;
+		}
+	});
+	
+	var dog = Animal();
+	
+	Animal.define("static v1",2);
+	Animal.define("v4",5);
+	Animal.define("static String v2","hello");
+	
+	ok(Animal.v1==2);
+	ok(dog.v4==4);
+	ok(dog.v1==2);
+	ok(Animal.v2=="hello");
+	throws(function(){
+		Animal.v2 = 123;
+	});
+	
+	var cat = Animal();
+	
+	dog.v1 = "asdf";
+	ok(dog.v1=="asdf");
+	ok(Animal.v1=="asdf");
+	ok(cat.v1=="asdf");
+	
+	dog.define({
+		"static v1":25,
+		v4:40,
+		"private Integer v6":90
+	});
+	
+	ok(dog.v1==25);
+	ok(Animal.v1=="asdf");
+	ok(cat.v1=="asdf");
+	
+	ok(dog.v4==40);
+	ok(cat.v4==5);
+	ok(dog.getV6()==90);
+	ok(cat.getV6()==6);	
+	
+});
+
+
+
+test("Overloading Methods via Define",function(){
+	
+	var Animal = jfork({
+		"static v1":1,
+		v2:2,
+		"static getV1()":function(){
+			return this.v1+1;
+		},
+		getV2:function(){
+			return this.v2+1;
+		}		
+	});
+	
+	var dog = Animal();
+	
+	Animal.define("static getV1(Integer v)",function(v){
+		return this.v1+v;
+	});
+	
+	throws(function(){
+		Animal.define("getV2",function(){
+			return this.v2+2;
+		});
+	});	
+	
+	var cat = Animal();
+	
+	Animal.v1=2;
+	cat.v2=3;
+	
+	ok(Animal.getV1()==3);
+	ok(Animal.getV1(3)==5);
+	ok(Animal.v1==2);
+	ok(dog.getV1()==3);
+	ok(dog.v1==2);
+	ok(dog.v2==2);
+	ok(dog.getV2()==3);
+	ok(cat.getV1()==3);
+	ok(cat.v1==2);
+	ok(cat.getV2()==4);
+	ok(cat.getV1(5)==7);
+	ok(cat.v2==3);
+
+});
+
+
+
+test("Inheritance with Define",function(){
+	
+	var Animal = jfork({
+		v1:1,
+		v2:2,
+		"static v3":3,
+		"static v4":4
+	});
+	
+	var ant = Animal();
+	
+	Animal.define({
+		"static v3":30,
+		v5:5,
+		"static v6":6,
+		"construct(Integer v1, Integer v5)":function(v1,v5){
+			this.v1 = v1;
+			this.v5 = v5;
+		}
+	});
+	
+	var worm = Animal(25,46);
+	
+	var Mammal = Animal.extend({});
+	
+	throws(function(){
+		Mammal(123,456);
+	});
+	
+	Mammal.define("construct",function(){});
+	
+	var dog = Mammal(123,456);
+	
+	Animal.define({
+		v7:7,
+		"static v8":8
+	});
+	
+	Mammal.define({
+		"static v4":40,
+		v2:20
+	});
+	
+	var cat = Mammal(789,101);
+	
+	//V1
+	ant.v1=100;
+	ok(ant.v1==100);
+	ok(worm.v1==25);
+	ok(dog.v1==123);
+	ok(cat.v1==789);
+	
+	cat.v1=9110;
+	ok(ant.v1==100);
+	ok(worm.v1==25);
+	ok(dog.v1==123);
+	ok(cat.v1==9110);
+	
+	//V2
+	ant.v2=200;
+	ok(ant.v2==200);
+	ok(worm.v2==2);
+	ok(dog.v2==2);
+	ok(cat.v2==20);
+	
+	cat.v2=2000;
+	ok(ant.v2==200);
+	ok(worm.v2==2);
+	ok(dog.v2==2);
+	ok(cat.v2==2000);
+	
+	//V3
+	ok(ant.v3==30);
+	ok(worm.v3==30);
+	ok(dog.v3==30);
+	ok(cat.v3==30);
+	
+	ant.v3=300;
+	ok(ant.v3==300);
+	ok(worm.v3==300);
+	ok(dog.v3==300);
+	ok(cat.v3==300);
+	
+	cat.v3=3000;
+	ok(ant.v3==3000);
+	ok(worm.v3==3000);
+	ok(dog.v3==3000);
+	ok(cat.v3==3000);
+	
+	//V4
+	ok(ant.v4==4);
+	ok(worm.v4==4);
+	ok(dog.v4==4);
+	ok(cat.v4==40);
+	
+	ant.v4=400;
+	ok(ant.v4==400);
+	ok(worm.v4==400);
+	ok(dog.v4==400);
+	ok(cat.v4==40);
+	ok(cat._super.v4==400);
+	
+	cat.v4=4000;
+	ok(ant.v4==400);
+	ok(worm.v4==400);
+	ok(dog.v4==400);
+	ok(cat.v4==4000);
+	ok(cat._super.v4==400);
+	
+	dog.v4=40000;
+	ok(ant.v4==40000);
+	ok(worm.v4==40000);
+	ok(dog.v4==40000);
+	ok(cat.v4==4000);
+	ok(cat._super.v4==40000);
+	
+	//V5
+	ok(ant.v5==undefined);
+	ok(worm.v5==46);
+	ok(dog.v5==456);
+	ok(cat.v5==101);
+	
+	worm.v5=5;
+	ok(ant.v5==undefined);
+	ok(worm.v5==5);
+	ok(dog.v5==456);
+	ok(cat.v5==101);
+	
+	cat.v5=123123;
+	ok(ant.v5==undefined);
+	ok(worm.v5==5);
+	ok(dog.v5==456);
+	ok(cat.v5==123123);
+	
+	//V6
+	ok(ant.v6==undefined);
+	ok(worm.v6==6);
+	ok(dog.v6==6);
+	ok(cat.v6==6);
+	ok(Animal.v6==6);
+	ok(Mammal.v6==6);
+	
+	Animal.v6=60;
+	ok(ant.v6==undefined);
+	ok(worm.v6==60);
+	ok(dog.v6==60);
+	ok(cat.v6==60);
+	ok(Animal.v6==60);
+	ok(Mammal.v6==60);
+	
+	Mammal.v6=600;
+	ok(ant.v6==undefined);
+	ok(worm.v6==600);
+	ok(dog.v6==600);
+	ok(cat.v6==600);
+	ok(Animal.v6==600);
+	ok(Mammal.v6==600);
+	
+	worm.v6=6000;
+	ok(ant.v6==undefined);
+	ok(worm.v6==6000);
+	ok(dog.v6==6000);
+	ok(cat.v6==6000);
+	ok(Animal.v6==6000);
+	ok(Mammal.v6==6000);
+
+	cat.v6=60000;
+	ok(ant.v6==undefined);
+	ok(worm.v6==60000);
+	ok(dog.v6==60000);
+	ok(cat.v6==60000);
+	ok(Animal.v6==60000);
+	ok(Mammal.v6==60000);
+
 });
 
 
 
 
 
-module("Alias");
 
-test("Alias Variables",function(){
+
+
+
+module("Helpers");
+
+
+test("Error Catching",function(){
 	
-	ok(true);
+	throws(function(){
+		jfork({			
+			v:function(){},
+			"String v":function(){}
+		});
+	});
+	
+	var lastMessage = null;
+	var orig = jfork.onError;
+	jfork.onError = function(msg){
+		lastMessage = msg;
+		orig(msg);
+	};
+	
+	throws(function(){		
+		jfork({			
+			v:function(){},
+			"String v":function(){}
+		});
+	});
+	
+	ok(lastMessage == "v: Cannot create two methods with the same signatures.");
 	
 });
 
 
 
-test("Alias Methods",function(){
+test("No Conflict",function(){
 	
-	ok(true);
+	ok(window.jfork != null);
 	
+	var j2 = jfork.noConflict();
+	
+	ok(window.jfork == null);
+	
+	ok(j2.Class != null);
 });
+
+
 
 
   
