@@ -1,45 +1,25 @@
 [jfork](http://jfork.com/) - Object Oriented JavaScript
 ==================================================
 
+
+For Full Documentation visit: [jfork.com](http://jfork.com/)
+--------------------------------------
+
 Overview
 --------------------------------------
 
-jfork is a JavaScript Framework which perfectly performance and usability. While most common frameworks focus entirely on performance, often the usability aspect of the framework is overlooked. jfork is not only fast and robust, it is also one of the simpliest frameworks to learn and get started. This site provides many tools, tutorials, and documentation to begin coding your project.
+This framework was developed to bring back structure to JavaScript, without destroying the flexibility we have come to enjoy.  It does this through a Class/Method relationship much like in Classical Object Oriented Notation.  However, jfork allows for much greater flexibility in its implementation of OO, so it will not take away from the power of JavaScript.
 
 ---
 
-## Tutorial and Examples ##
-
----
-
-### Type Checking ###
-
-```javascript
-//Check the type Explicitly
-if(jfork.is.Number(123)){  
-	console.log("Yay!  123 is a Number");  
-}
-
-//Get the type
-console.log("123 is of type " + jfork.is(123));
-```
-
-Output:
-
-```javascript
-Yay!  123 is a Number
-123 is of type Number
-```
-
----
 
 ### Object Oriented Syntax ###
 	
 Basic Class Example:
 
 ```javascript
-//Define the Class
-var Animal = jfork.Class({
+//Define a new Class
+var Animal = jfork({
 	"static isAlive":true,
 	"private numEyes":2,
 	construct:function(numEyes){
@@ -79,11 +59,5 @@ false
 true
 ```
 
-
-
-Extend Class Example:
-
-
-	
 
 
