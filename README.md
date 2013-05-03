@@ -1,10 +1,6 @@
 [jfork](http://jfork.com/) - Object Oriented JavaScript
 ==================================================
 
-
-For Full Documentation visit: [jfork.com](http://jfork.com/)
---------------------------------------
-
 Overview
 --------------------------------------
 
@@ -12,6 +8,8 @@ This framework was developed to bring back structure to JavaScript, without dest
 
 ---
 
+For Full Documentation visit: [jfork.com](http://jfork.com/)
+--------------------------------------
 
 ### Object Oriented Syntax ###
 	
