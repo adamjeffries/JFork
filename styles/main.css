@@ -210,3 +210,24 @@ table {
 	height:150px;
 	background:url(../images/footer.png) repeat-x bottom left;
 }
+
+#downloadButton {
+	float:right;
+	margin:-10px 10px;
+}
+	#downloadButton a {
+		background:#3B85AC;
+		line-height:30px;
+		padding:0 10px;
+		font-size:21px;
+		color:#fff;
+		border:2px solid #A3A500;
+	}
+		#downloadButton a:hover {
+			background:#A3A500;
+		}
+	#downloadButton i {
+		color:#8F8D8B;
+		font-size:14px;
+	}
+	

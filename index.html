@@ -29,25 +29,24 @@
 		<a href="https://github.com/JeffriesCo/JFork" target="_blank">View Source and Submit Bugs on GitHub</a>
 	</div>
 	<div id="mainMenu">
-		<a href="./jfork-2.0.min.js" target="_blank">Download</a>
-		<a href="#examples">Examples</a>
 		<a href="#documentation">Documentation</a>
+		<a href="#examples">Examples</a>
 		<a href="#compatibility">Compatibility</a>
+		<a href="#upcoming">Upcoming Features</a>
+		<a href="test/jfork.2.0.min.html">Test Cases</a>
 	</div>
 </div>
 
-<h1>What is this?</h1>
+<h1>What is this?<span id="downloadButton"><i>(Only 3kB minified and gzipped)</i> <a href="./jfork-2.0.min.js" target="_blank">Download</a></span></h1>
 
 
 <p><b>A JavaScript Object Oriented Framework.</b></p>
 
-<p>This framework was developed to bring back structure to JavaScript, without destroying the flexibility we have come to enjoy.  It does this through a Class/Method relationship much like in Classical Object Oriented Notation.  However, jfork allows for much greater flexibility in its implementation of OO, so it will not ruin the power of JavaScript.</p>
+<p>This framework was developed to bring back structure to JavaScript, without destroying the flexibility we have come to enjoy.  It does this through a Class/Method relationship much like in Classical Object Oriented Notation.  However, jfork allows for much greater flexibility in its implementation of OO, so it will not take away from the power of JavaScript.</p>
 <!-- 
 <p>Lightweight</p>
 <p>JavaScript is a double edged sword.  On one hand it provides immense flexibility and with that flexibility a developer has tons of power.  However when working on larger projects or with multiple developers this flexibility can become dangerous and intrusive.</p>
  -->
-
-
 
 
 <h1>What does it look like?</h1>
@@ -55,7 +54,7 @@
 <pre class="brush: js; gutter: false;">
 var Animal = jfork({
 
-	'String type':null,
+	'private String type':null,
 
 	'construct(String type)':function(type){
 		this.type = null;
@@ -64,10 +63,41 @@ var Animal = jfork({
 	'public String getType()':function(){
 		return this.type;
 	}
+});
+
+var Person = Animal.extend({
+
+	'Boolean hasLegs':true,
+	
+	'public String getType()':function(){
+		return "Always a Person";
+	}
 
 });
+
+var bob = Person("Bob Smith");
+
+bob.getType(); //Return 'Bob Smith is a Person'
+
 </pre>
 
+
+<h1>Why should I use it?</h1>
+<p>If you are interested in writing understandable and stable code using a lightweight framework, then you should use jfork.  Here are a couple more reasons why:</p>
+<b>
+<ul>
+	<li>Inheritance is made simple!</li>
+	<li>Beautiful clean easy to read code</li>
+	<li>Saves initial development time and easy to support</li>
+</ul>
+</b>
+<h3>Why should a team use it?</h3>
+<ul>
+	<li>Easy to pick up and understand anothers code</li>
+	<li>Scales well for large applications or small sites</li>
+	<li>Excellent for Java/C++/C# developers starting out in JavaScript</li>
+	<li>Catches common mistakes by setting an input and output standard via type checking</li>
+</ul>
 
 
 <h1>How can I use it?</h1>
@@ -83,91 +113,188 @@ var Animal = jfork({
 
 
 <h1>How does it work?</h1>
-
-<p>jfork works by reassigning the context of methods and variables to create difference scopes.  There are 4 primary scopes: Private Static, Public Static, Private Instance, and Public Instance.  </p>
-<pre class="brush: js; gutter: false;">
-var Person = jfork({
-	
-	'private static hairColor':'black',
-	
-	'public static numberOfFeet':2,
-	
-	'private lastName':'Doe',
-	
-	'public firstName':'John'
-
-});
-</pre>
+<p>jfork does a "compile" on first definition of a Class by parsing the definitions and building the methods, variables, and contexts.  Then using closure techniques it assigns scope and context to the newly built assets.  It relies on Function.apply to assign the method scopes and Object.define to assign the variables scopes.</p>
+<p>To save time and performance at runtime and instance creation, it does not rebuild or parse methods, variables, or constructors.  Instead using the assets already built during Class creation, it assigns them new contexts.</p>
 
 
 
+<h1>What is it not?</h1>
+<p>jfork is not designed in be a replace all framework and do everything our way.  It is not a full fledged framework offering prototypes, querying, dom manipulation, animations, etc.  If this is what you are interested in, then we would recommend a framework such as jQuery, MooTools, Prototype, etc.  What does it not do:</p>
+<ul>
+	<li>Zero DOM Manipulation</li>
+	<li>No random helper methods</li>
+	<li>No prototypes or invasive behavior</li>
+	<li>Not a new language, just a cleaner method of writing JS</li>
+</ul>
 
+
+<a name="documentation"></a>
 <h1>Documentation</h1>
 
 
 <h2>Introduction</h2>
-<p>jfork if a full fledged object oriented framework offering: type checking, method overloading, inheritance, private and public scopes, static methods and variables, and constructors.  The jfork function basically behaves as a Class definer.</p>
-<ul>
-	<li>Constructors</li>
-	<li>Variables</li>
-	<li>Methods</li>
-</ul>
+<p>jfork if a full fledged object oriented framework offering: type checking, method overloading, inheritance, private and public scopes, static methods and variables, and constructors.  The jfork function basically behaves as a Class definer and can define <b>constructors</b>, <b>variables</b>, and <b>methods</b>.</p>
+<p>This documentation will discuss more syntax that object oriented programming concepts.  To read up on these principles visit <a href="https://en.wikipedia.org/wiki/Object-oriented_programming">this overview</a> or try a web search.</p>
 
-<h3>asdfasdf</h3>
 
-<table>
-	<tr>
-		<td>this is the text</td>
-		<td>Here is more text</td>
-	</tr>
-	<tr>
-		<td>this is the text</td>
-		<td>Here is more text</td>
-	</tr>
-	<tr>
-		<td>this is the text</td>
-		<td>Here is more text</td>
-	</tr>
-	<tr>
-		<td>this is the text</td>
-		<td>Here is more text</td>
-	</tr>
-</table>
+<h3>Basic Syntax</h3>
+
 
 <pre class="brush: js; gutter: false;">
 var myClass = jfork({
 
-	"method or variable definition":"value or function"
+	"variable definition":"variable value",
+	
+	"constructor definition":"constructor function",
+	
+	"method definition":"method function"
 
 });
 </pre>
 
 
 
+<h2>Classes and Instances</h2>
+<p>jfork follows a classical object oriented notation.  Therefore the two most important aspects of it are: Classes and Instances.  i.e. "Bob" is an <i>instance</i> of a "Person"(Class).  The very basic usage of jfork is as follows:</p>
+<pre class="brush: js; gutter: false;">
+var Person = jfork({
 
-<h2>No Conflict</h2>
-<p>A good practice when using JavaScript is to prevent multiple objects from sitting on the window.  Therefore you can eliminate window.jfork and place jfork onto your own library using the noConflict method.</p>
-<pre class="brush: js; gutter: false; highlight: [3]">
-var myLibrary = {};  //Standard JS library such as jQuery
+	fullname:"",
 
-myLibrary.Class = jfork.noConflict();
+	construct:function(name){
+		this.fullname = name;
+	}
 
-//This is normally easier to read
-var Shoes = myLibrary.Class({
-	//jfork Class syntax goes here
 });
+
+var bob = Person("Bob Smith");
+
+var sue = Person("Sue Smith");
+
+console.log(bob.fullname); //Returns "Bob Smith"
+
+console.log(sue.fullname); //Returns "Sue Smith"
+
 </pre>
 
 
+<h2>Native JavaScript vs JFork</h2>
+<p>So why would JFork be used over native JavaScript?  That answer is that JavaScript does not provide type checking and the inheritance model through prototypes is confusing and limiting.  Comparing these two simple examples, you can clearly see that jfork syntax is easier to read.  As a situation get more complex the syntax and complexity required from using prototypes grows quickly.</p>
+<pre class="brush: js; gutter: false;">
+//Native JavaScript
+var Person = function(first, last){
+	this.firstname = first;	
+	this.lastname = last;
+};
+
+Person.prototype.firstname = "";
+Person.prototype.lastname = "";
+
+Person.prototype.setName = function(name){
+	var nameSplit = name.split(" ");
+	this.firstname = nameSplit[0];
+	this.lastname = nameSplit[1];
+};
+
+var bob = new Person("Bob","Smith");
 
 
-<h2>Syntax Shorthand</h2>
+//JFork syntax
+var Person = jfork({
+	firstname:"",
+	lastname:"",
+	construct:function(first,last){
+		this.firstname = first;
+		this.lastname = last;
+	},
+	setName:function(name){
+		var nameSplit = name.split(" ");
+		this.firstname = nameSplit[0];
+		this.lastname = nameSplit[1];
+	}	
+});
+
+var bob = Person("Bob","Smith");
 
 
-<h2>Class Definition</h2>
+</pre>
+
 
 
 <h2>Naming Conventions</h2>
+<p>Due to jfork's flexibility, it allows for multiple ways to setup an assets signature.  JavaScript developers tend to be very flexible, so "Variants" are very common.  Because of this, in jfork, if a data type is not explicity defined, it will be considered a "Variant".</p>
+
+<h3>Variables Signatures</h3>
+<p>Variables are case sensitive and cannot be the name of a reserved JavaScript or jfork keyword.  Variables can technically be comprised of any sequence of characters, however it is recommended to use JavaScript's variable naming conventions.  Variables can either be <b>Instance Variables</b> (Non-Static) or <b>Class Variables</b> (Static).  They can be private or public and can be typed or not.</p>
+<pre class="brush: js; gutter: false;">
+jfork({
+	"variable definition":"variable value"	
+});
+
+//Definition breakdown
+"(public|private|blank) (static|blank) (dataType|blank) name":"default value"
+
+//Basic example showing what happens if not all attributes are defined
+'variableName':'value'
+	is equal to:
+'public variableName':'value'
+	is equal to:
+'public Variant variableName':'value'
+
+//Private Static String variable definition
+'private static String name':'value'
+</pre>
+<p><b>Note: </b>The default value of a <b>variable cannot be a function</b>.  This is what distinguishes between a method and variable.  However, a function can be stored on a variable after the class is defined.  Also, just like in JavaScript, objects, arrays, and functions are pass by reference.  Due to this fact, if you set a variable to one of these values, it will not be unique between instances.  It is suggested to <b>define any objects or object-like values to a variable within a constructor.</b></p>
+
+<h3>Method Signatures</h3>
+<p>Methods, just like variables are case sensitive and should follow the same naming conventions.  One major difference is the ability to define parameters.  If no parameters are defined, then anything can be passed to a method.  Parameters should be comma delimited and can be type checked or not.  There are other special abilities like parameters as an object, which is defined below.</p>
+<pre class="brush: js; gutter: false;">
+jfork({
+	"method definition":"method Function"
+});
+
+//Method Definition Breakdown
+"(public|private|blank) (static|blank) (Type|blank) name(Parameters|blank)":Function
+
+//Basic Method Definition showing what happens if not all attributes are defined
+'myMethod':function(){}
+	is equal to:
+'public myMethod':function(){}
+	is equal to:
+'public Variant myMethod':function(){}
+	is NOT equal to:
+'public Variant myMethod()':function(){}  
+
+//By including '()', it signifies no parameters should be passed
+//However by leaving this off, it allows anything to be passed without type checking
+
+//Basic Parameters
+'myMethod(String a, b)':function(a,b){}
+	is equal to:
+'myMethod(String a, Variant b)':function(a,b){}
+
+
+</pre>
+
+<h3>Constructor Signatures</h3>
+<p>Constructors are defined using the <b>construct</b> keyword.  They can be overloaded and follow the same naming and parameter conventions as methods.  When extending a super class, the sub class must have a constructor which fits the same parameters.</p>
+<pre class="brush: js; gutter: false;">
+jfork({
+	"constructor definition":Function
+});
+
+//Constructor Definition Breakdown
+"construct(Parameters|blank)":Function
+
+//Basic Constructor Definition - any parameters accepted
+construct:function(){}
+
+//Parameters defined on a constructor
+'construct(String a, Integer b, c)':function(a,b,c){}
+
+
+
+</pre>
 
 
 <h2>Data Types</h2>
@@ -213,6 +340,28 @@ jfork.is["Number"]("what up"); //returns false;
 	<tr><td><b>Variant</b></td><td>Anything! All variables/methods/constructors have the option of being "typeless" which implies a Variant</td></tr>
 </table>
 
+
+<h3>Using 'void' on methods</h3>
+<p>Using void will signify that nothing should be returned from a method.  This is a completely optional attribute, and does not necessarily need to be used, even if a method should not return something.  However, it does provide better code clarity.</p>
+<pre class="brush: js; gutter: false; ">
+var Animal = jfork({
+
+	"static void returnNothing":function(){
+		//Do Something
+	},
+	"void returnSomething":function(){
+		return "hello world";
+	}
+});
+
+Animal.returnNothing()===undefined;
+
+var dog = Animal();
+
+dog.returnSomething(); //Causes an exception to be thrown
+</pre>
+
+
 <h3>Data Types as Arrays</h3>
 <p>Any data type can be converted to be an Array of that data type by appending "[]" to the end of the type.  For example "String[]" represents an array of Strings now.  This can be applied in all situations of variables, methods, and constructors.</p>
 <pre class="brush: js; gutter: false;">
@@ -242,6 +391,8 @@ tollfree.getDigits(); //Returns [1,8,0,0,8,8,8];
 
 </pre>
 
+
+
 <h3>Parameters as an Object</h3>
 <p>A common practice in JavaScript is to pass an object around which contains the parameters a method needs.  This fact was not overlooked.  To pass parameters to a method as an object, wrap "{ }" around all the parameters notation.</p>
 <pre class="brush: js; gutter: false;">
@@ -265,6 +416,8 @@ var bob = Person({first:"Bob", lastname:"Smith"});
 console.log(bob.fullname); //Returns "Bob Smith";
 
 </pre>
+
+
 
 
 <h3>Adding Custom Data Types</h3>
@@ -296,31 +449,303 @@ Integer.isDivisible(3); //Returns "false"
 
 
 
+
 <h2>Inheritance</h2>
+<p>One of the most powerful features of jfork is how it deals with inheritance.  A Class can be extended into multiple different new Classes to any depth necessary without significant overhead.  Classes are extended using <b>Class.extend({signature})</b> on any created Class.  <i>Instances cannot be extended.</i></p>
+<pre class="brush: js; gutter: false;">
+var Animal = jfork({
+	"static hasBlood":true,
+	name:"no name yet"
+});
+
+var Dog = Animal.extend({
+	"static canBark":true,
+	getName:function(){
+		return this.name;
+	}
+});
+
+var fido = Dog();
+fido.name = "fido";
+fido.getName(); //Returns "fido"
+fido.canBark; //Equals true
+Dog.canBark; //Equals true
+
+var Human = Animal.extend({
+	eyeColor:"blue"
+});
+
+var bob = Human();
+bob.eyeColor; //Equals "blue"
+bob.name; //Equals "no name yet"
+
+</pre>
+
+<h3>Accessing an instances Super class</h3>
+<p>All assets of an instances super class instance can be accessed via the <b>_super</b> variable.  If a class has extended deeper that one parent, then _super can be chained.  For instance: Animal->Mammal->Dog.  <b>dog._super._super</b> is the Animal class instance of dog and its variables and methods can be accessed accordingly.  This is a very powerful feature of jfork and one that sets it apart from other OO frameworks.</p>
+<pre class="brush: js; gutter: false;">
+var SuperClass = jfork({
+
+	slogan:"I am super!"
+
+});
+
+var SubClass = SuperClass.extend({
+
+	slogan:"I am a Sub :(",
+	
+	getParentSlogan:function(){
+		return this._super.slogan;
+	}
+
+});
+
+var instance = SubClass();
+
+instance.getParentSlogan(); //Returns "I am super!"
+
+</pre>
+
+
+
+<h3>Overriding Inherited Methods and Variables</h3>
+<p>Inherited Methods and Variables can be overriden by a sub class with entirely new signatures.  To override a method/variable, the only aspect of the definition which needs to be the same is the name.  Therefore you can change return types, parameters, and variable types.</p>
+<pre class="brush: js; gutter: false;">
+var SuperClass = jfork({
+
+	"void print(String msg)":function(msg){
+		console.log(msg);
+	}
+});
+
+var SubClass = SuperClass.extend({
+
+	"String print(Integer n)":function(n){
+		this._super.print("Print " + n + " please!");
+		return "I printed!";
+	}
+});
+
+var printer = SubClass();
+
+printer.print(25); //Returns "I printed!" and the console logs: "Print 25 please!"
+
+</pre>
 
 
 <h2>Overloading</h2>
+<p>Both constructors and methods can be overloaded with different parameters.  Just changing the return type will throw an exception.  Also if no parameters are defined "()", then this will come into conflict with any parameter combination as it catches all.</p>
+<pre class="brush: js; gutter: false;">
+var MyClass = jfork({
 
-	First Come first served
+	version:0,
+
+	"construct(String a)":function(){
+		this.version = 1;
+	},
+	
+	"construct(String a, Integer b)":function(){
+		this.version = 2;
+	},
+	
+	"construct({Array a})":function(){
+		this.version = 3;
+	},
+	
+	"myMethod()":function(){
+		this.version = 4;
+	},
+	
+	"public myMethod(String a)":function(){
+		this.version = 5;
+	}
+});
+
+//This will call the second constructor
+var myClass = MyClass("hello",123);
+myClass.version==2;
+
+//This will reference the second method
+myClass.myMethod("world");
+myClass.version==5;
+</pre>
 
 
-<h2>Performance</h2>
+<h2>Reflection</h2>
+<p>jfork can redefine methods, constructors, and variables on the fly.  The <b>define</b> method exists on both Classes and Instances.  If define is used on a Class, then any future instances created from this class will use the newly defined assets.  If anything is defined on an instance, static or otherwise, it will only pertain to the instance. </p>
+<pre class="brush: js; gutter: false;">
+//Define syntax for single definitions
+(Class|Instance).define("definition","value");
+
+//Define syntax for multiple definitions
+(Class|Instance).define({
+	"definition 1":"value",
+	"definition 2":"value"
+	//etc, etc
+});
+</pre>
+
+
+<h3>Class.define</h3>
+<pre class="brush: js; gutter: false;">
+var Animal = jfork({});
+
+var cat = Animal();
+
+Animal.define({
+	"static v3":3,
+	v4:4
+});
+
+cat.v3 == undefined;
+cat.v4 == undefined;
+
+var dog = Animal();
+
+dog.v3 == 3;
+dog.v4 == 4;
+Animal.v3 == 3;
+</pre>
+
+<h3>Instance.define</h3>
+<pre class="brush: js; gutter: false;">
+var Animal = jfork({});
+
+var cat = Animal();
+var dog = Animal();
+
+cat.define("Boolean meows":true);
+
+dog.meows==undefined;
+cat.meows==true;
+</pre>
+
+<p>The most common situtation for using define is to extend an instance for one time use.  The define method returns the public dynamic context on an instance.  Therefore here is a common pattern for extending a single instance:</p>
+<pre class="brush: js; gutter: false;">
+var Animal = jfork({});
+
+//This is a useful pattern when a Dog Class is overkill and would only be used once
+var dog = Animal().define({
+	"Boolean barks":true
+});
+</pre>
+
+<h3>Reflection overrides</h3>
+
+<h2>Reserved Words</h2>
+<p>JavaScript reserved words should not be used to name methods, variables, or parameters.  You can see a nice list of them from Mozilla <a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Reserved_Words">here</a>.  Also there are a few reserved words used by jfork, namely: construct, void, private, public, and static.</p>
+
+
+<h2>No Conflict</h2>
+<p>A good practice when using JavaScript is to prevent multiple objects from sitting on the window.  Therefore you can eliminate window.jfork and place jfork onto your own library using the noConflict method.</p>
+<pre class="brush: js; gutter: false; highlight: [3]">
+var myLibrary = {};  //Standard JS library such as jQuery
+
+myLibrary.Class = jfork.noConflict();
+
+//This is normally easier to read
+var Shoes = myLibrary.Class({
+	//jfork Class syntax goes here
+});
+</pre>
 
 
 <h2>Throwing Exceptions</h2>
+<p>Exceptions are thrown from compile time and runtime errors using jfork.  However your code may have a reason to turn these off or log them.  Therefore you can override the <b>onError</b> method like this:</p>
+<pre class="brush: js; gutter: false;">
+//Defining two methods with conflicting parameters would throw an exception
+jfork({
+	"myMethod":function(){},
+	"myMethod(String v)":function(){}
+});
+
+//You can redefine the jfork.onError method to capture the error message
+jfork.onError = function(msg){
+	//Save msg or log it to a server via ajax
+};
+</pre>
 
 
-<h2>Reserved Words</h2>
 
 
+<a name="examples"></a>
 <h1>Examples</h1>
 
 <h2>Singleton Pattern</h2>
+<pre class="brush: js; gutter: false;">
+var myClass = jfork({
+
+	"private static instance":null,
+	
+	"public hello":"world",
+	
+	"static get()":function(){
+		if(!this.instance){
+			this.instance = this();
+		}
+		return this.instance;
+	}
+});
+
+
+var dog = myClass.get();
+
+var cat = myClass.get();
+
+cat.hello = "what up";
+
+dog.hello; //Equals "what up" because dog and cat are the same
+
+</pre>
+
 
 <h2>Factory Pattern</h2>
 
 <a name="compatibility"></a>
-<h1>Compatibility</h1>	
+<h1>Compatibility</h1>
+<p>The major limiting factor on the jfork library is the usage of Object.defineProperty.  Therefore here is the list of browsers that jfork is currently supported on:</p>
+<table>
+	<tr><td><b>Minimum Browser Version</b></td><td><b>Current Browser Version as of May 2013</b></td></tr>
+	<tr><td>Chrome 5+</td><td>Google Chrome version 28</td></tr>
+	<tr><td>Firefox 4+</td><td>Mozilla Firefox version 20</td></tr>
+	<tr><td>Internet Explorer 9+</td><td>Microsoft Internet Explorer version 10</td></tr>
+	<tr><td>Opera 11.60+</td><td>Opera version 12.15</td></tr>
+	<tr><td>Safari 5.1+</td><td>Apple Safari 5.1.9</td></tr>
+</table>
+
+
+
+<h1>Performance</h1>
+<p>Creates one copy of a function and redeclares it.  Has pointers to the new storage and contexts</p>
+
+
+
+
+<h1>Frequently Asked Questions</h1>
+
+<h2>Why doesn't jfork use the 'new' operator?</h2>
+<p>JavaScript is a functional language, object oriented language, and prototype based language.  This leads to much confusion and cursing.  Therefore to easy pain and to allow "instanceof" to work nicely with extended classes, I decided to wrap the 'new' operator internally and therefore rendering it worthless in Class creation.</p>
+
+
+<h2>WTF just happened?</h2>
+<p>This is JavaScript and you can shoot yourself in the foot very easily.  Some examples of this maybe using reserved words as variable or method names like "prototype", or the full window dom is messed up like "undefined=true;".   In any case, there are a thousand ways to mess up JavaScript, therefore the easiest way to figure out what just happened is to compartmentalize small segments of your code to find the problem.</p>
+
+<a name="upcoming"></a>
+<h1>Upcoming Features!</h1>
+<p>Like all large projects, this is a living framework and is continuously added to.  Here is a list of what to expect in the future:</p>
+
+<ul>
+	<li>'final' attribute for variables</li>
+	<li>'abstract' attribute for variables and methods</li>
+	<li>'redefine' function on instances and classes - This will completely replace instead of overloading methods.</li>
+	<li>'remove' function on instances and classes - clears any variables and methods on the instance or class</li>
+	<li>Extend 'define' to allow for retro actively applying to all inflated instances and extended classes.</li>
+	<li>Add default values to parameters - for example: myMethod(Integer n=123)</li>
+	<li>Interfaces - syntax would be jfork({implements:[myInterface,myInterface2]})</li>
+	<li>Annotations - @Deprecated, @Override, @Range(min=5, max=25), @NotNull, @NotNullOrEmpty, @Get, @Set</li>
+</ul>
+
+
 	
 </div>
 <div id="footer"></div>
