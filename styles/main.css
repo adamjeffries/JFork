@@ -146,7 +146,7 @@ table {
 	position:relative;
 	width:960px;
 	margin:auto;
-	padding-bottom:150px;
+	padding-bottom:20px;
 }
 
 #header {
@@ -202,26 +202,17 @@ table {
 		}
 	
 
-#footer {
-	position:fixed;
-	left:0px;
-	bottom:0px;
-	width:100%;
-	height:150px;
-	background:url(../images/footer.png) repeat-x bottom left;
-}
-
 #downloadButton {
 	float:right;
 	margin:-10px 10px;
 }
 	#downloadButton a {
+		display:inline-block;
 		background:#3B85AC;
-		line-height:30px;
+		line-height:32px;
 		padding:0 10px;
-		font-size:21px;
+		font-size:22px;
 		color:#fff;
-		border:2px solid #A3A500;
 	}
 		#downloadButton a:hover {
 			background:#A3A500;
@@ -229,5 +220,16 @@ table {
 	#downloadButton i {
 		color:#8F8D8B;
 		font-size:14px;
+	}
+	
+#footer {
+	border-top:4px solid #3B85AC;
+	border-bottom:4px solid #3B85AC;
+	line-height:50px;
+	font-size:18px;
+	color:#8F8D8B;
+}
+	#footer a {
+		font-weight:normal;
 	}
 	
