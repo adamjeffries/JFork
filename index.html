@@ -821,8 +821,7 @@ myAjax.send("mydomain.com/ajaxpath",function(response,XMLHttp){
 
 
 <h1>Performance</h1>
-<p>Creates one copy of a function and redeclares it.  Has pointers to the new storage and contexts.</p>
-
+<p>jfork wraps methods and variables in multiple layers to type-check and assign contexts.  It is much slower than native prototype methods because of this.  However, native prototypes do not provide these features so it makes sense that they are faster.  Current jfork relies very heavily on assigning methods to contexts after the prototypes have already been created.  One technique which I am working on and will greatly increase performance is to assign context at time of the prototype.</p>
 
 
 
