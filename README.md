@@ -23,7 +23,7 @@ Basic Class Example:
 var Animal = jfork({
 	"static isAlive":true,
 	"private numEyes":2,
-	construct:function(numEyes){
+	"construct":function(numEyes){
 		this.numEyes = numEyes;
 	},
 	"static setIsAlive":function(isAlive){
