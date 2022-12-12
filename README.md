@@ -1,4 +1,5 @@
-# OUTDATED
+# ARCHIVED / DEPRECATED
+
 This project was devised before classes existed; please use them instead.  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes
 
 [jfork](http://jfork.com/) - Object Oriented JavaScript
